@@ -6,6 +6,7 @@
 package deposit.view;
 
 import deposit.controller.Controller;
+import deposit.util.IProduct;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -110,15 +111,13 @@ public class FXMLInterfaceController implements Initializable {
     private Button buttonRegister;
     @FXML
     private Button buttonCancel;
-    
-        /* Manager */
+        /* Manager Buttons */
     @FXML
     private Button buttonCreate;
     @FXML
     private Button buttonChange;
     @FXML
     private Button buttonRemove;
-    
         /* Create Product */
     @FXML
     private Button buttonCreateProduct;
@@ -129,6 +128,8 @@ public class FXMLInterfaceController implements Initializable {
     private Button buttonChangeProduct;
     @FXML
     private Button buttonCancelChangeProduct;
+    @FXML
+    private Button buttonChangeSearchProduct;
 
     Controller controllerDeposit;
     
@@ -307,6 +308,24 @@ public class FXMLInterfaceController implements Initializable {
             }
         }
     }
+    
+    @FXML
+    public void eventButtonChangeSearchProduct() {
+        if (textFieldChangeIdProduct.getText().trim().isEmpty() || !textFieldChangeIdProduct.getText().matches("[0-9]+")) {
+            labelErrorChangeProduct.setText("ERROR: Digite um ID válido.");
+            labelErrorChangeProduct.setVisible(true);
+        } else {
+            IProduct product = controllerDeposit.findProduct(textFieldChangeIdProduct.getText());
+            if (product == null) {
+                JOptionPane.showMessageDialog(null, "Não foi encontrado o produto com este ID.");
+            } else {
+                textFieldChangeNameProduct.setText(product.getName());
+                textFieldChangeAmountProduct.setText(Integer.toString(product.getAmount()));
+                textFieldChangePriceProduct.setText(product.getPrice());
+            }
+        }
+    }
+    
     /**
      * Button Event Cancel Product, when clicked the pane "paneCreateProcuct" is set invisible.
      */
@@ -314,4 +333,5 @@ public class FXMLInterfaceController implements Initializable {
     public void eventButtonCancelChangeProduct() {
         paneChangeProduct.setVisible(false);
     }
+    
 }

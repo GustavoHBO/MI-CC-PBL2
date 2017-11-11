@@ -5,12 +5,14 @@
  */
 package deposit.model;
 
+import deposit.util.IProduct;
+
 /**
  * This class store the data of the products in deposit.
  *
  * @author Gustavo Henrique.
  */
-public class Product {
+public class Product implements IProduct{
 
     private String id;  // Id of product.
     private String name; //Name of product.
@@ -95,5 +97,4 @@ public class Product {
     public void setAmount(int amount) {
         this.amount = amount;
     }
-
 }

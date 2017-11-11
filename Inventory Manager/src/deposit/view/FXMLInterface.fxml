@@ -155,7 +155,7 @@
             </Label>
          </children>
       </Pane>
-      <Pane fx:id="paneChangeProduct" prefHeight="400.0" prefWidth="600.0" visible="false">
+      <Pane fx:id="paneChangeProduct" prefHeight="400.0" prefWidth="600.0">
          <children>
             <ImageView disable="true" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
                <image>
@@ -187,8 +187,8 @@
             </Label>
             <Button fx:id="buttonChangeProduct" layoutX="232.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonChangeProduct" prefHeight="52.0" prefWidth="134.0" text="Alterar" />
             <Button fx:id="buttonCancelChangeProduct" layoutX="381.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCancelChangeProduct" prefHeight="52.0" prefWidth="134.0" text="Cancelar" />
-            <TextField fx:id="textFieldChangeIdProduct" layoutX="448.0" layoutY="62.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
-            <Label layoutX="417.0" layoutY="69.0" text="ID:">
+            <TextField fx:id="textFieldChangeIdProduct" layoutX="420.0" layoutY="61.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
+            <Label layoutX="389.0" layoutY="68.0" text="ID:">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font>
@@ -198,6 +198,14 @@
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
+            <Button fx:id="buttonChangeSearchProduct" layoutX="533.0" layoutY="59.0" mnemonicParsing="false" onAction="#eventButtonChangeSearchProduct" style="-: url(./images/iconSearchOrange.png);">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/iconSearchOrange.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
          </children>
       </Pane>
 	</children>
