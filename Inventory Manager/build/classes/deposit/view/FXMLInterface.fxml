@@ -110,7 +110,7 @@
             <Button fx:id="buttonRemove" layoutX="372.0" layoutY="53.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="134.0" text="Remover Produto" />
          </children>
       </Pane>
-      <Pane fx:id="paneCreateProcuct" prefHeight="400.0" prefWidth="600.0" visible="false">
+      <Pane fx:id="paneCreateProcuct" prefHeight="400.0" prefWidth="600.0">
          <children>
             <ImageView disable="true" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
                <image>
@@ -142,6 +142,12 @@
             </Label>
             <Button fx:id="buttonCreateProduct" layoutX="232.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCreateProduct" prefHeight="52.0" prefWidth="134.0" text="Adicionar" />
             <Button fx:id="buttonCancelProduct" layoutX="381.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCancelProduct" prefHeight="52.0" prefWidth="134.0" text="Cancelar" />
+            <TextField fx:id="textFieldIdProduct" layoutX="448.0" layoutY="39.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
+            <Label layoutX="417.0" layoutY="46.0" text="ID:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
          </children>
       </Pane>
 	</children>

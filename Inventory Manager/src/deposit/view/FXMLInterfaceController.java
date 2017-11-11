@@ -5,8 +5,12 @@
  */
 package deposit.view;
 
+import deposit.controller.Controller;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -14,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -65,6 +70,8 @@ public class FXMLInterfaceController implements Initializable {
     private TextField textFieldAmountProduct;
     @FXML
     private TextField textFieldPriceProduct;
+    @FXML
+    private TextField textFieldIdProduct;
 
     /* Statement of Label's */
         /* Register */
@@ -104,9 +111,11 @@ public class FXMLInterfaceController implements Initializable {
     @FXML
     private Button buttonCancelProduct;
 
+    Controller controllerDeposit;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        controllerDeposit = Controller.getInstance();
     }
 
                                         /* Button Events Login */
@@ -134,6 +143,13 @@ public class FXMLInterfaceController implements Initializable {
         } else {
             labelErrorLogin.setVisible(false);
             paneManager.setVisible(true);
+            
+            try {
+                controllerDeposit.readAllData();
+            } catch (IOException ex) {
+                /* If there is an error reading the stored data */
+                JOptionPane.showMessageDialog(null, "Ouve erro ao tentar recuperar os produtos já cadastrados.");
+            }
         }
     }
 
@@ -217,8 +233,17 @@ public class FXMLInterfaceController implements Initializable {
         } else if(textFieldPriceProduct.getText().trim().isEmpty()){
             labelErrorCreateProduct.setText("ERROR: Digite um preço.");
             labelErrorCreateProduct.setVisible(true);
+            labelErrorCreateProduct.setVisible(true);
+        } else if(textFieldIdProduct.getText().trim().isEmpty() || !textFieldIdProduct.getText().matches("[0-9]+")){
+            labelErrorCreateProduct.setText("ERROR: Digite um ID válido.");
+            labelErrorCreateProduct.setVisible(true);
         } else {
             labelErrorCreateProduct.setVisible(false);
+            try {
+                controllerDeposit.registerProduct(textFieldIdProduct.getText().trim(), textFieldNameProduct.getText().trim(), textFieldPriceProduct.getText().trim(), textFieldAmountProduct.getText().trim());
+            } catch (IOException ex) {
+                Logger.getLogger(FXMLInterfaceController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }
