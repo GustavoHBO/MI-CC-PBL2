@@ -34,7 +34,9 @@ public class FXMLInterfaceController implements Initializable {
     @FXML
     private Pane paneManager;
     @FXML
-    private Pane paneCreateProcuct;
+    private Pane paneCreateProduct;
+    @FXML
+    private Pane paneChangeProduct;
 
     /* Statement of TextField's */
         /* Login */
@@ -72,6 +74,15 @@ public class FXMLInterfaceController implements Initializable {
     private TextField textFieldPriceProduct;
     @FXML
     private TextField textFieldIdProduct;
+        /* Change Product */
+    @FXML
+    private TextField textFieldChangeNameProduct;
+    @FXML
+    private TextField textFieldChangeAmountProduct;
+    @FXML
+    private TextField textFieldChangePriceProduct;
+    @FXML
+    private TextField textFieldChangeIdProduct;
 
     /* Statement of Label's */
         /* Register */
@@ -83,6 +94,9 @@ public class FXMLInterfaceController implements Initializable {
         /* Create Product */
     @FXML
     private Label labelErrorCreateProduct;
+        /* Change Product */
+    @FXML
+    private Label labelErrorChangeProduct;
 
     /* Statement of Button's */
         /* Login Buttons */
@@ -110,6 +124,11 @@ public class FXMLInterfaceController implements Initializable {
     private Button buttonCreateProduct;
     @FXML
     private Button buttonCancelProduct;
+        /* Change Product */
+    @FXML
+    private Button buttonChangeProduct;
+    @FXML
+    private Button buttonCancelChangeProduct;
 
     Controller controllerDeposit;
     
@@ -200,23 +219,32 @@ public class FXMLInterfaceController implements Initializable {
         paneRegister.setVisible(false);
     }
     
-                                            /* Button Events Create Product */
-    
+                                            /* Button Events Manager */
     /**
      * Button Event Create Product, when clicked the pane "paneCreateProcuct" is
      * set visible.
      */
     @FXML
     public void eventButtonCreate() {
-        paneCreateProcuct.setVisible(true);
+        paneCreateProduct.setVisible(true);
+    }
+    /**
+     * Button Event Change Product, when clicked the pane "paneChangeProcuct" is
+     * set visible.
+     */
+    @FXML
+    public void eventButtonChange() {
+        paneChangeProduct.setVisible(true);
     }
     
+                                            /* Button Events Create Product */
+
     /**
      * Button Event Cancel Product, when clicked the pane "paneCreateProcuct" is set invisible.
      */
     @FXML
     public void eventButtonCancelProduct() {
-        paneCreateProcuct.setVisible(false);
+        paneCreateProduct.setVisible(false);
     }
     
     /**
@@ -245,5 +273,45 @@ public class FXMLInterfaceController implements Initializable {
                 Logger.getLogger(FXMLInterfaceController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+                                                /* Button Events Change Product */
+    /**
+     * Button Event Change, when clicked will modify the data of the product, using the id.
+     */
+    public void eventButtonChangeProduct() {
+        if (textFieldChangeNameProduct.getText().trim().isEmpty()) {
+            labelErrorChangeProduct.setText("ERROR: Digite um nome válido.");
+            labelErrorChangeProduct.setVisible(true);
+        } else if (textFieldChangeAmountProduct.getText().trim().isEmpty()) {
+            labelErrorChangeProduct.setText("ERROR: Digite uma quantidade de produtos.");
+            labelErrorChangeProduct.setVisible(true);
+        } else if (textFieldChangePriceProduct.getText().trim().isEmpty()) {
+            labelErrorChangeProduct.setText("ERROR: Digite um preço.");
+            labelErrorChangeProduct.setVisible(true);
+            labelErrorChangeProduct.setVisible(true);
+        } else if (textFieldChangeIdProduct.getText().trim().isEmpty() || !textFieldChangeIdProduct.getText().matches("[0-9]+")) {
+            labelErrorChangeProduct.setText("ERROR: Digite um ID válido.");
+            labelErrorChangeProduct.setVisible(true);
+        } else {
+            labelErrorChangeProduct.setVisible(false);
+            try {
+                int inf = controllerDeposit.changeProduct(textFieldChangeIdProduct.getText().trim(), textFieldChangeNameProduct.getText().trim(), textFieldChangePriceProduct.getText().trim(), textFieldChangeAmountProduct.getText().trim());
+                if (inf == 1) {
+                    JOptionPane.showMessageDialog(null, "Produto alterado!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Produto não encontrado!");
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(FXMLInterfaceController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    /**
+     * Button Event Cancel Product, when clicked the pane "paneCreateProcuct" is set invisible.
+     */
+    @FXML
+    public void eventButtonCancelChangeProduct() {
+        paneChangeProduct.setVisible(false);
     }
 }

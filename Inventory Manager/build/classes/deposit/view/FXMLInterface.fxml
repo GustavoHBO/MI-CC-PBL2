@@ -106,11 +106,11 @@
                </image>
             </ImageView>
             <Button fx:id="buttonCreate" layoutX="75.0" layoutY="53.0" mnemonicParsing="false" onAction="#eventButtonCreate" prefHeight="36.0" prefWidth="134.0" text="Adicionar Produto" />
-            <Button fx:id="buttonChange" layoutX="224.0" layoutY="53.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="134.0" text="Alterar Produto" />
+            <Button fx:id="buttonChange" layoutX="224.0" layoutY="53.0" mnemonicParsing="false" onAction="#eventButtonChange" prefHeight="36.0" prefWidth="134.0" text="Alterar Produto" />
             <Button fx:id="buttonRemove" layoutX="372.0" layoutY="53.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="134.0" text="Remover Produto" />
          </children>
       </Pane>
-      <Pane fx:id="paneCreateProcuct" prefHeight="400.0" prefWidth="600.0">
+      <Pane fx:id="paneCreateProduct" prefHeight="400.0" prefWidth="600.0" visible="false">
          <children>
             <ImageView disable="true" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
                <image>
@@ -122,30 +122,80 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="textFieldNameProduct" layoutX="205.0" layoutY="39.0" prefHeight="36.0" prefWidth="170.0" promptText="Nome do produto" />
-            <Label layoutX="139.0" layoutY="46.0" text="Nome:">
+            <TextField fx:id="textFieldNameProduct" layoutX="205.0" layoutY="62.0" prefHeight="36.0" prefWidth="170.0" promptText="Nome do produto" />
+            <Label layoutX="139.0" layoutY="69.0" text="Nome:">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="textFieldAmountProduct" layoutX="205.0" layoutY="85.0" prefHeight="36.0" prefWidth="104.0" promptText="Quantidade" />
-            <Label layoutX="90.0" layoutY="94.0" text="Quantidade:">
+            <TextField fx:id="textFieldAmountProduct" layoutX="205.0" layoutY="108.0" prefHeight="36.0" prefWidth="104.0" promptText="Quantidade" />
+            <Label layoutX="90.0" layoutY="117.0" text="Quantidade:">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <TextField fx:id="textFieldPriceProduct" layoutX="205.0" layoutY="135.0" prefHeight="36.0" prefWidth="104.0" promptText="Preço" />
-            <Label layoutX="104.0" layoutY="144.0" text="Preço(R$):">
+            <TextField fx:id="textFieldPriceProduct" layoutX="205.0" layoutY="158.0" prefHeight="36.0" prefWidth="104.0" promptText="Preço" />
+            <Label layoutX="104.0" layoutY="167.0" text="Preço(R$):">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
             <Button fx:id="buttonCreateProduct" layoutX="232.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCreateProduct" prefHeight="52.0" prefWidth="134.0" text="Adicionar" />
             <Button fx:id="buttonCancelProduct" layoutX="381.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCancelProduct" prefHeight="52.0" prefWidth="134.0" text="Cancelar" />
-            <TextField fx:id="textFieldIdProduct" layoutX="448.0" layoutY="39.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
-            <Label layoutX="417.0" layoutY="46.0" text="ID:">
+            <TextField fx:id="textFieldIdProduct" layoutX="448.0" layoutY="62.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
+            <Label layoutX="417.0" layoutY="69.0" text="ID:">
                <font>
                   <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="162.0" layoutY="14.0" text="Cadastro de Produtos">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <Pane fx:id="paneChangeProduct" prefHeight="400.0" prefWidth="600.0" visible="false">
+         <children>
+            <ImageView disable="true" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
+               <image>
+                  <Image url="@images/wallpaper.jpg" />
+               </image>
+            </ImageView>
+            <Label fx:id="labelErrorChangeProduct" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="361.0" prefHeight="25.0" prefWidth="578.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldChangeNameProduct" layoutX="205.0" layoutY="62.0" prefHeight="36.0" prefWidth="170.0" promptText="Nome do produto" />
+            <Label layoutX="139.0" layoutY="69.0" text="Nome:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldChangeAmountProduct" layoutX="205.0" layoutY="108.0" prefHeight="36.0" prefWidth="104.0" promptText="Quantidade" />
+            <Label layoutX="90.0" layoutY="117.0" text="Quantidade:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldChangePriceProduct" layoutX="205.0" layoutY="158.0" prefHeight="36.0" prefWidth="104.0" promptText="Preço" />
+            <Label layoutX="104.0" layoutY="167.0" text="Preço(R$):">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Button fx:id="buttonChangeProduct" layoutX="232.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonChangeProduct" prefHeight="52.0" prefWidth="134.0" text="Alterar" />
+            <Button fx:id="buttonCancelChangeProduct" layoutX="381.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCancelChangeProduct" prefHeight="52.0" prefWidth="134.0" text="Cancelar" />
+            <TextField fx:id="textFieldChangeIdProduct" layoutX="448.0" layoutY="62.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
+            <Label layoutX="417.0" layoutY="69.0" text="ID:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="162.0" layoutY="14.0" text="Alteração de Produto">
+               <font>
+                  <Font name="System Bold" size="24.0" />
                </font>
             </Label>
          </children>

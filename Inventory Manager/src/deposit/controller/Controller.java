@@ -56,9 +56,9 @@ public class Controller {
         controller = new Controller();
     }
     
-                            /* End Singleton */
+                                                /* End Singleton */
     
-                            /* Methods of control */
+                                                /* Methods of control */
     
     /**
      * Register the product created with the parameters received.
@@ -86,6 +86,36 @@ public class Controller {
     }
     
     /**
+     * This method will modify the data of the product, using the id.
+     * @param id - Id of the product.
+     * @param name - The name of the product.
+     * @param price - The price of the product.
+     * @param amount - The amount of the product.
+     * @return 0 - Case the product not has be identify.
+     * @throws java.io.IOException - Case the archive don't can be read.
+     */
+    public int changeProduct(String id, String name, String price, String amount) throws IOException {
+
+        Product product;
+
+        if (listProduct == null) {// If the list is null, create a new list.
+            listProduct = new ArrayList<>();
+            return 0;
+        }
+
+        product = findProduct(id);
+
+        if (product != null) {
+            product.setName(name);
+            product.setPrice(price);
+            product.setAmount(Integer.parseInt(amount));
+            saveAllData();
+            return 1;
+        }
+        return 0;
+    }
+    
+    /**
      * Return the product with name or id equal the code.
      * @param code - Id or name of the product.
      * @return null - If the product not exists, product - If the product exist.
@@ -108,7 +138,7 @@ public class Controller {
         return null;
     }
     
-                                /* Methods in storage */
+                                                /* Methods in storage */
     /**
      * Save the data in an archive .im
      * @return 0 - If the list is null or empty, 1 case the data was save.
@@ -160,7 +190,10 @@ public class Controller {
         return 1;
     }
 
-    
+    /**
+     * Read all data in storage and put in a list.
+     * @throws IOException - If the file can't to be read.
+     */
     public void readAllData() throws IOException {
         File file = new File("./backup/deposit/product/data.im");
         if (!file.exists()) {
