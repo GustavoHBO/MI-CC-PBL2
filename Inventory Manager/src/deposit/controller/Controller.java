@@ -73,13 +73,13 @@ public class Controller {
         
         Product product = new Product(id, name, price, Integer.parseInt(amount));
         
-        if(listProduct == null)// If the list is null, create a new list.
+        if(getListProduct() == null)// If the list is null, create a new list.
             listProduct = new ArrayList<>();
         
         if (findProduct(id) != null) {
             return 0;
         } else {
-            listProduct.add(product);
+            getListProduct().add(product);
             saveAllData();
             return 1;
         }
@@ -98,7 +98,7 @@ public class Controller {
 
         Product product;
 
-        if (listProduct == null) {// If the list is null, create a new list.
+        if (getListProduct() == null) {// If the list is null, create a new list.
             listProduct = new ArrayList<>();
             return 0;
         }
@@ -116,17 +116,39 @@ public class Controller {
     }
     
     /**
+     * Remove the product with id equal the code.
+     * @param code - Identifier of the product.
+     * @return 0 - If the product not exist, 1 - If the product was excluded.
+     * @throws java.io.IOException - If the file of backup can't be created.
+     */
+    public int removeProduct(String code) throws IOException{
+        Iterator<Product> it;
+        Product product;
+        if(getListProduct() == null){
+            return 0;
+        } else {
+            product = findProduct(code);
+            if(product == null){
+                return 0;
+            }
+            getListProduct().remove(product); // Remove the product.
+            saveAllData();
+            return 1;
+        }
+    }
+    
+    /**
      * Return the product with name or id equal the code.
      * @param code - Id or name of the product.
      * @return null - If the product not exists, product - If the product exist.
      */
     public Product findProduct(String code) {
-        if (listProduct == null) {
+        if (getListProduct() == null) {
             return null;
-        } else if (listProduct.isEmpty()) {
+        } else if (getListProduct().isEmpty()) {
             return null;
         } else {
-            Iterator<Product> it = listProduct.iterator();
+            Iterator<Product> it = getListProduct().iterator();
             Product product;
             while(it.hasNext()){
                 product = it.next();
@@ -157,19 +179,20 @@ public class Controller {
         }
 
         file = new File("./backup/deposit/product/data.im");
-        if (!file.exists()) {
+        if (file.exists()) {// Delete the archive for that to save the new.
+            file.delete();
             file.createNewFile();
         }
         
-        if(listProduct == null){
+        if(getListProduct() == null){
             return 0;
-        } else if (listProduct.isEmpty()){
+        } else if (getListProduct().isEmpty()){
             return 0;
         } else {
             os = new FileOutputStream(file);
             osw = new OutputStreamWriter(os);
             bw = new BufferedWriter(osw);
-            it = listProduct.iterator();
+            it = getListProduct().iterator();
             while (it.hasNext()) {
                 product = it.next();
                 bw.write(product.getId());
@@ -197,15 +220,17 @@ public class Controller {
     public void readAllData() throws IOException {
         File file = new File("./backup/deposit/product/data.im");
         if (!file.exists()) {
-            return;
+            //Return, because the else catch the rest.
         } else {
-            FileReader fileReader = new FileReader(file);// FileReader it read the archive.
-            BufferedReader bufferedReader = new BufferedReader(fileReader);//BufferedReader it store the data read in a buffer.
+            FileReader fileReader;
+            fileReader = new FileReader(file);// FileReader it read the archive.
+            BufferedReader bufferedReader;
+            bufferedReader = new BufferedReader(fileReader);//BufferedReader it store the data read in a buffer.
             Product product;
             String dataLine;
             String[] dataLineSplited;
 
-            if (listProduct == null) {
+            if (getListProduct() == null) {
                 listProduct = new ArrayList<>();
             }
 
@@ -213,11 +238,19 @@ public class Controller {
                 dataLine = bufferedReader.readLine();
                 dataLineSplited = dataLine.split(STRINGSAVESEPARATOR);
                 product = new Product(dataLineSplited[0], dataLineSplited[1], dataLineSplited[2], Integer.parseInt(dataLineSplited[3]));
-                listProduct.add(product);
+                getListProduct().add(product);
                 System.out.println(product.getName());
             }
             bufferedReader.close();
             fileReader.close();
         }
+    }
+
+    /**
+     * Return the list with the products registered.
+     * @return the listProduct - List of products.
+     */
+    public ArrayList<Product> getListProduct() {
+        return listProduct;
     }
 }

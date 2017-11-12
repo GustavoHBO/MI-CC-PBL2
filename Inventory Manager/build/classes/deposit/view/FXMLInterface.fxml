@@ -84,7 +84,7 @@
 				</Label>
 				<Button fx:id="buttonRegister" layoutX="224.0" layoutY="311.0" mnemonicParsing="false" onAction="#eventButtonRegister" text="Cadastrar" />
 				<Button fx:id="buttonCancel" layoutX="343.0" layoutY="311.0" mnemonicParsing="false" onAction="#eventButtonCancel" text="Cancelar" />
-            <Label fx:id="labelError" alignment="CENTER" contentDisplay="CENTER" layoutX="7.0" layoutY="369.0" prefHeight="25.0" prefWidth="578.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
+            <Label fx:id="labelError" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="367.0" prefHeight="25.0" prefWidth="578.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
@@ -107,7 +107,9 @@
             </ImageView>
             <Button fx:id="buttonCreate" layoutX="75.0" layoutY="53.0" mnemonicParsing="false" onAction="#eventButtonCreate" prefHeight="36.0" prefWidth="134.0" text="Adicionar Produto" />
             <Button fx:id="buttonChange" layoutX="224.0" layoutY="53.0" mnemonicParsing="false" onAction="#eventButtonChange" prefHeight="36.0" prefWidth="134.0" text="Alterar Produto" />
-            <Button fx:id="buttonRemove" layoutX="372.0" layoutY="53.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="134.0" text="Remover Produto" />
+            <Button fx:id="buttonRemove" layoutX="372.0" layoutY="53.0" mnemonicParsing="false" onAction="#eventButtonRemove" prefHeight="36.0" prefWidth="134.0" text="Remover Produto" />
+            <Button fx:id="buttonShowProduct" layoutX="224.0" layoutY="104.0" mnemonicParsing="false" onAction="#eventButtonShowProduct" prefHeight="36.0" prefWidth="134.0" text="Exibir Produtos" />
+            <Button fx:id="buttonLogout" layoutX="510.0" layoutY="361.0" mnemonicParsing="false" onAction="#eventButtonLogout" text="Deslogar" />
          </children>
       </Pane>
       <Pane fx:id="paneCreateProduct" prefHeight="400.0" prefWidth="600.0" visible="false">
@@ -155,7 +157,7 @@
             </Label>
          </children>
       </Pane>
-      <Pane fx:id="paneChangeProduct" prefHeight="400.0" prefWidth="600.0">
+      <Pane fx:id="paneChangeProduct" prefHeight="400.0" prefWidth="600.0" visible="false">
          <children>
             <ImageView disable="true" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
                <image>
@@ -198,7 +200,7 @@
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
-            <Button fx:id="buttonChangeSearchProduct" layoutX="533.0" layoutY="59.0" mnemonicParsing="false" onAction="#eventButtonChangeSearchProduct" style="-: url(./images/iconSearchOrange.png);">
+            <Button fx:id="buttonChangeSearchProduct" layoutX="533.0" layoutY="60.0" mnemonicParsing="false" onAction="#eventButtonChangeSearchProduct" prefHeight="36.0" prefWidth="45.0" style="-: url(./images/iconSearchOrange.png);">
                <graphic>
                   <ImageView fitHeight="50.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -206,6 +208,90 @@
                      </image>
                   </ImageView>
                </graphic></Button>
+         </children>
+      </Pane>
+      <Pane fx:id="paneRemoveProduct" prefHeight="400.0" prefWidth="600.0" visible="false">
+         <children>
+            <ImageView disable="true" fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
+               <image>
+                  <Image url="@images/wallpaper.jpg" />
+               </image>
+            </ImageView>
+            <Label layoutX="168.0" layoutY="134.0" text="Nome:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="119.0" layoutY="182.0" text="Quantidade:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="133.0" layoutY="232.0" text="Preço(R$):">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Button fx:id="buttonRemoveProduct" layoutX="232.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonRemoveProduct" prefHeight="52.0" prefWidth="134.0" text="Remover" />
+            <Button fx:id="buttonCancelRemoveProduct" layoutX="381.0" layoutY="300.0" mnemonicParsing="false" onAction="#eventButtonCancelRemoveProduct" prefHeight="52.0" prefWidth="134.0" text="Cancelar" />
+            <TextField fx:id="textFieldIdRemoveProduct" layoutX="236.0" layoutY="61.0" prefHeight="36.0" prefWidth="104.0" promptText="ID" />
+            <Label layoutX="205.0" layoutY="68.0" text="ID:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="172.0" layoutY="14.0" text="Remover Produto">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            <Button fx:id="buttonSearchRemoveProduct" layoutX="349.0" layoutY="60.0" mnemonicParsing="false" onAction="#eventButtonSearchRemoveProduct" prefHeight="36.0" prefWidth="45.0" style="-: url(./images/iconSearchOrange.png);">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/iconSearchOrange.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Label fx:id="labelNameRemoveProduct" layoutX="235.0" layoutY="131.0" prefHeight="25.0" prefWidth="274.0">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="labelAmountRemoveProduct" layoutX="235.0" layoutY="179.0" prefHeight="25.0" prefWidth="274.0">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="labelPriceRemoveProduct" layoutX="235.0" layoutY="229.0" prefHeight="25.0" prefWidth="274.0">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="labelErrorRemoveProduct" alignment="CENTER" contentDisplay="CENTER" layoutX="9.0" layoutY="367.0" prefHeight="25.0" prefWidth="584.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <Pane fx:id="paneShowProduct" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" visible="false">
+         <children>
+            <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true">
+               <image>
+                  <Image url="@images/wallpaper.jpg" />
+               </image>
+            </ImageView>
+            <TableView fx:id="tableViewShowProduct" layoutX="31.0" layoutY="91.0" prefHeight="281.0" prefWidth="539.0">
+              <columns>
+                <TableColumn fx:id="tableColumnIdShowProduct" prefWidth="64.0" resizable="false" text="ID" />
+                <TableColumn fx:id="tableColumnNameShowProduct" prefWidth="264.0" resizable="false" text="Nome" />
+                  <TableColumn fx:id="tableColumnAmountShowProduct" prefWidth="96.0" resizable="false" text="Quantidade" />
+                  <TableColumn fx:id="tableColumnPriceShowProduct" prefWidth="114.0" resizable="false" text="Preço" />
+              </columns>
+            </TableView>
+            <Button fx:id="buttonBackShowProduct" layoutX="513.0" layoutY="33.0" mnemonicParsing="false" onAction="#eventButtonBackShowProduct" text="Voltar" />
          </children>
       </Pane>
 	</children>
