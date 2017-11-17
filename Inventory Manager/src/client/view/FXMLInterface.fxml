@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.view.FXMLInterfaceController">
+   <children>
+      <Pane fx:id="paneLogin" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #E1C591;">
+         <children>
+            <ImageView fitHeight="174.0" fitWidth="160.0" layoutX="413.0" layoutY="225.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../client/view/images/iconDeposit.png" />
+               </image>
+            </ImageView>
+            <TextField fx:id="textFieldCnpjLogin" layoutX="215.0" layoutY="65.0" promptText="CNPJ" />
+            <Button fx:id="buttonLoginLogin" layoutX="228.0" layoutY="150.0" mnemonicParsing="false" onAction="#eventButtonLoginLogin" text="Entrar" />
+            <Button fx:id="buttonRegisterLogin" layoutX="293.0" layoutY="150.0" mnemonicParsing="false" onAction="#eventButtonRegisterLogin" text="Cadastrar" />
+            <Label layoutX="141.0" layoutY="14.0" text="Compras de produtos 1000 Plus ++" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <PasswordField fx:id="passwordFieldPassLogin" layoutX="215.0" layoutY="100.0" promptText="Senha" />
+            <Label fx:id="labelErrorLogin" alignment="CENTER" contentDisplay="CENTER" layoutX="12.0" layoutY="365.0" prefHeight="25.0" prefWidth="578.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <Pane fx:id="paneRegister" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #CCA05C;" visible="false">
+         <children>
+            <TextField fx:id="textFieldNameRegister" layoutX="165.0" layoutY="51.0" promptText="Nome" />
+            <TextField fx:id="textFieldCpfRegister" layoutX="164.0" layoutY="164.0" promptText="CPF" />
+            <TextField fx:id="textFieldNumberRegister" layoutX="164.0" layoutY="88.0" promptText="Número" />
+            <TextField fx:id="textFieldPositionXRegister" layoutX="164.0" layoutY="127.0" prefHeight="25.0" prefWidth="82.0" promptText="Posição X" />
+            <TextField fx:id="textFieldPositionYRegister" layoutX="255.0" layoutY="127.0" prefHeight="25.0" prefWidth="82.0" promptText="Posição Y" />
+            <Label layoutX="107.0" layoutY="56.0" text="Nome:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="93.0" layoutY="93.0" text="Número:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="121.0" layoutY="169.0" text="CPF:">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="235.0" layoutY="20.0" text="Cadastro de Cliente">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="59.0" layoutY="130.0" text="Localização:">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Button fx:id="buttonRegisterRegister" layoutX="272.0" layoutY="311.0" mnemonicParsing="false" onAction="#eventButtonRegisterRegister" text="Cadastrar" />
+            <Button fx:id="buttonCancelRegister" layoutX="391.0" layoutY="311.0" mnemonicParsing="false" onAction="#eventButtonCancelRegister" text="Cancelar" />
+            <Label fx:id="labelErrorRegister" alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="367.0" prefHeight="25.0" prefWidth="578.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <PasswordField fx:id="passwordFieldPassRegister" layoutX="164.0" layoutY="223.0" promptText="Senha" />
+            <PasswordField fx:id="passwordFieldRePassRegister" layoutX="163.0" layoutY="261.0" promptText="Senha Novamente" />
+            <Label layoutX="104.0" layoutY="227.0" text="Senha:">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <Pane fx:id="paneStore" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #CCA05C;">
+         <children>
+            <Label layoutX="60.0" layoutY="56.0" text="Buscar:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="232.0" layoutY="21.0" text="Compra de Produtos">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="11.0" layoutY="367.0" prefHeight="25.0" prefWidth="578.0" textAlignment="CENTER" textFill="#fc0606" visible="false">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldSearchStore" layoutX="129.0" layoutY="52.0" promptText="Nome ou ID do produto" />
+            <TableView fx:id="tableViewProductsStore" layoutX="28.0" layoutY="91.0" prefHeight="230.0" prefWidth="543.0">
+              <columns>
+                <TableColumn fx:id="tableColumnIdStore" prefWidth="60.0" text="ID" />
+                <TableColumn fx:id="tableColumnNameStore" prefWidth="358.0" text="Produto" />
+                  <TableColumn fx:id="tableColumnPriceStore" prefWidth="123.0" text="Preço" />
+              </columns>
+            </TableView>
+            <Button fx:id="buttonCancelStore" layoutX="498.0" layoutY="342.0" mnemonicParsing="false" text="Cancelar" />
+            <Button fx:id="buttonAddCartStore" layoutX="325.0" layoutY="342.0" mnemonicParsing="false" text="Adicionar ao carrinho" />
+            <Button fx:id="buttonSeeCartStore" layoutX="442.0" layoutY="40.0" mnemonicParsing="false" text="Ver Carrinho">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/iconBuyOrange.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="buttonSearchStore" layoutX="325.0" layoutY="52.0" mnemonicParsing="false" text="Buscar" />
+         </children>
+      </Pane>
+      <Pane layoutX="70.0" layoutY="110.0" prefHeight="230.0" prefWidth="463.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000;" visible="false">
+         <children>
+            <Label layoutX="202.0" layoutY="14.0" text="Produto">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="46.0" layoutY="60.0" text="Nome:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="99.0" layoutY="61.0" prefHeight="15.0" prefWidth="192.0" />
+            <Label layoutX="46.0" layoutY="88.0" text="Quantidade:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="305.0" layoutY="60.0" text="ID:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="335.0" layoutY="61.0" prefHeight="15.0" prefWidth="82.0" />
+            <TextField layoutX="151.0" layoutY="84.0" prefHeight="25.0" prefWidth="96.0" promptText="Quantidade" />
+            <Button layoutX="147.0" layoutY="183.0" mnemonicParsing="false" text="Adicionar" />
+            <Button layoutX="240.0" layoutY="183.0" mnemonicParsing="false" text="Cancelar" />
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

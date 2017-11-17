@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -516,12 +514,16 @@ public class FXMLInterfaceController implements Initializable {
         paneShowProduct.setVisible(false);
     }
 
+    /**
+     * Load the data on list of the products in a table.
+     */
+    @FXML
     public void loadDataTableView() {
         Iterator<Product> it;
         Product product;
 
         if (controllerDeposit.getListProduct() == null) {
-            return;
+            // return void, because the next code not is executed.
         } else {
             it = controllerDeposit.getListProduct().iterator();
             observableListProduct = FXCollections.observableArrayList();
