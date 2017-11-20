@@ -5,6 +5,8 @@
  */
 package client.view;
 
+import deposit.model.ProductProperty;
+import deposit.util.IProduct;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -16,6 +18,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javax.swing.JOptionPane;
 
 /**
  * Control the interface of the client, allowed buys.
@@ -30,6 +33,10 @@ public class FXMLInterfaceController implements Initializable{
     private Pane paneRegister;
     @FXML
     private Pane paneStore;
+    @FXML
+    private Pane paneSeeAddProduct;
+    @FXML
+    private Pane paneCart;
     
         /* Statement Button's */
             /* Login */
@@ -54,6 +61,12 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private Button buttonCancelStore;
     
+            /* See Product */
+    @FXML
+    private Button buttonAddToCartSeeProduct;
+    @FXML
+    private Button buttonCancelSeeProduct;
+    
         /* Statement TextField's */
             /* Login */
     @FXML
@@ -74,6 +87,11 @@ public class FXMLInterfaceController implements Initializable{
             /* Store */
     @FXML
     private TextField textFieldSearchStore;
+    
+            /* See Product */
+    @FXML
+    private TextField textFieldAmountSeeProduct;
+    
     
     
         /* Statement PasswordField */
@@ -96,19 +114,26 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private Label labelErrorRegister;
     
-        /* Statement TableView */
-            /* Store */
+            /* See Product */
     @FXML
-    private TableView tableViewProductsStore;
+    private Label labelNameSeeProduct;
+    @FXML
+    private Label labelIdSeeProduct;
+    
     
         /* Statement TableView */
             /* Store */
     @FXML
-    private TableColumn tableColumnIdStore;
+    private TableView<ProductProperty> tableViewProductsStore;
+    
+        /* Statement TableView */
+            /* Store */
     @FXML
-    private TableColumn tableColumnNameStore;
+    private TableColumn<ProductProperty, String> tableColumnIdStore;
     @FXML
-    private TableColumn tableColumnPriceStore;
+    private TableColumn<ProductProperty, String> tableColumnNameStore;
+    @FXML
+    private TableColumn<ProductProperty, String> tableColumnPriceStore;
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -129,7 +154,10 @@ public class FXMLInterfaceController implements Initializable{
             labelErrorLogin.setText("ERROR: Senha inválida.");
             labelErrorLogin.setVisible(true);
         } else {
+            paneStore.setVisible(true);
             labelErrorLogin.setVisible(false);
+            textFieldCnpjLogin.setText("");
+            passwordFieldPassLogin.setText("");
         }
     }
     
@@ -178,8 +206,65 @@ public class FXMLInterfaceController implements Initializable{
      * Button Event Cancel, turn the paneRegister and labelErrorRegister in invisible.
      */
     @FXML
-    private void eventButtonCancelRegister(){
+    private void eventButtonCancelRegister() {
         paneRegister.setVisible(false);
         labelErrorRegister.setVisible(false);
+    }
+
+                                /* Store */
+    /**
+     * Button event Search Store, search the products with the name or id past in TextField "textFieldSearchStore".
+     */
+    @FXML
+    private void eventButtonSearchStore() {
+        if (textFieldSearchStore.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "ID ou Nome inválido.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            
+        }
+    }
+    
+    /**
+     * Button event See Cart, show the cart and the items that are in it. Show the pane "paneCart"
+     */
+    @FXML
+    private void eventButtonSeeCartStore(){
+        paneCart.setVisible(true);
+    }
+    
+    /**
+     * Button event Add Cart Store, add the product selected in table showing the pane "paneSeeAddProduct" for choose the amount.
+     */
+    @FXML
+    private void eventButtonAddCartStore(){
+//        ProductProperty p = tableViewProductsStore.getSelectionModel().getSelectedItem();
+//        System.out.println(p.getId());
+        paneSeeAddProduct.setVisible(true);
+        
+    }
+    
+    /**
+     * Button event Cancel Store, turn the pane "paneStore" in invisible.
+     */
+    @FXML
+    private void eventButtonCancelStore() {
+        paneStore.setVisible(false);
+    }
+    
+                                /* See Product */
+    /**
+     * Button event Add to Cart See Product, show the pane "paneSeeAddProduct" for the user can add most products in your cart.
+     */
+    @FXML
+    private void eventButtonAddToCartSeeProduct() {
+        
+    }
+    
+    /**
+     * Button event Cancel See Product, turn the pane "paneSeeAddProduct" in invisible.
+     */
+    @FXML
+    private void eventButtonCancelSeeProduct() {
+        paneSeeAddProduct.setVisible(false);
     }
 }
