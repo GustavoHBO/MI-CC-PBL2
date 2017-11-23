@@ -5,6 +5,7 @@
  */
 package deposit.controller;
 
+import deposit.model.Connect;
 import deposit.model.Product;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,6 +15,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -30,6 +32,11 @@ public class Controller {
     private final String STRINGSAVESEPARATOR = "!=";
     
     private ArrayList<Product> listProduct;// List with all the products registered.
+    
+    private Connect connector;
+    
+    private String ipServer;
+    private int portServer;
     
                             /* Design Pattern Singleton */
     
@@ -181,8 +188,8 @@ public class Controller {
         file = new File("./backup/deposit/product/data.im");
         if (file.exists()) {// Delete the archive for that to save the new.
             file.delete();
-            file.createNewFile();
         }
+        file.createNewFile();
         
         if(getListProduct() == null){
             return 0;
@@ -239,7 +246,6 @@ public class Controller {
                 dataLineSplited = dataLine.split(STRINGSAVESEPARATOR);
                 product = new Product(dataLineSplited[0], dataLineSplited[1], dataLineSplited[2], Integer.parseInt(dataLineSplited[3]));
                 getListProduct().add(product);
-                System.out.println(product.getName());
             }
             bufferedReader.close();
             fileReader.close();
@@ -252,5 +258,18 @@ public class Controller {
      */
     public ArrayList<Product> getListProduct() {
         return listProduct;
+    }
+    
+                                        /* Connections */
+    
+    public int login(String cpf, String password) throws SocketException, IOException {
+
+        if (connector == null) {
+            connector = new Connect();
+        }
+        connector.connect(ipServer, portServer);
+        connector.sendData("01" + cpf + STRINGSAVESEPARATOR + password + "01");
+
+        return 0;
     }
 }

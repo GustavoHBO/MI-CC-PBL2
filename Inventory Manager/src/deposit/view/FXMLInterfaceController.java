@@ -6,10 +6,12 @@
 package deposit.view;
 
 import deposit.controller.Controller;
+import deposit.model.Connect;
 import deposit.model.Product;
 import deposit.model.ProductProperty;
 import deposit.util.IProduct;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
@@ -230,7 +232,7 @@ public class FXMLInterfaceController implements Initializable {
                 controllerDeposit.readAllData();
             } catch (IOException ex) {
                 /* If there is an error reading the stored data */
-                JOptionPane.showMessageDialog(null, "Ouve erro ao tentar recuperar os produtos já cadastrados.", "Alerta", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Ouve erro ao tentar recuperar os produtos já cadastrados.", "Alerta", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
