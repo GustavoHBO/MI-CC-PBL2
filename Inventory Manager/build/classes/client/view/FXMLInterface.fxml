@@ -115,7 +115,7 @@
             <Button fx:id="buttonSearchStore" layoutX="325.0" layoutY="52.0" mnemonicParsing="false" onAction="#eventButtonSearchStore" text="Buscar" />
          </children>
       </Pane>
-      <Pane fx:id="paneSeeAddProduct" layoutX="70.0" layoutY="110.0" prefHeight="230.0" prefWidth="463.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000;" visible="false">
+      <Pane fx:id="paneSeeAddProduct" layoutX="75.0" layoutY="75.0" prefHeight="230.0" prefWidth="463.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000; -fx-border-width: 5;" visible="false">
          <children>
             <Label layoutX="202.0" layoutY="14.0" text="Produto">
                <font>
@@ -144,33 +144,31 @@
             <Button fx:id="buttonCancelSeeProduct" layoutX="240.0" layoutY="183.0" mnemonicParsing="false" onAction="#eventButtonCancelSeeProduct" text="Cancelar" />
          </children>
       </Pane>
-      <Pane fx:id="paneSeeAddProduct1" layoutX="75.0" layoutY="75.0" prefHeight="250.0" prefWidth="450.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000; -fx-border-width: 5;" visible="false">
+      <Pane fx:id="paneSeeAddProduct1" layoutX="25.0" layoutY="35.0" prefHeight="350.0" prefWidth="550.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000; -fx-border-width: 5;">
          <children>
-            <Label layoutX="202.0" layoutY="14.0" text="Produto">
-               <font>
-                  <Font name="System Bold" size="13.0" />
-               </font>
-            </Label>
-            <Label layoutX="46.0" layoutY="60.0" text="Nome:">
+            <Label layoutX="226.0" layoutY="14.0" text="Meu Carrinho">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
             </Label>
             <Label fx:id="labelNameSeeProduct1" layoutX="99.0" layoutY="61.0" prefHeight="15.0" prefWidth="192.0" />
-            <Label layoutX="46.0" layoutY="88.0" text="Quantidade:">
-               <font>
-                  <Font name="System Bold" size="13.0" />
-               </font>
-            </Label>
-            <Label layoutX="305.0" layoutY="60.0" text="ID:">
-               <font>
-                  <Font name="System Bold" size="13.0" />
-               </font>
-            </Label>
             <Label fx:id="labelIdSeeProduct1" layoutX="335.0" layoutY="61.0" prefHeight="15.0" prefWidth="82.0" />
-            <TextField fx:id="textFieldAmountSeeProduct1" layoutX="151.0" layoutY="84.0" prefHeight="25.0" prefWidth="96.0" promptText="Quantidade" />
-            <Button fx:id="buttonAddToCartSeeProduct1" layoutX="147.0" layoutY="183.0" mnemonicParsing="false" text="Adicionar" />
-            <Button fx:id="buttonCancelSeeProduct1" layoutX="240.0" layoutY="183.0" mnemonicParsing="false" onAction="#eventButtonCancelSeeProduct" text="Cancelar" />
+            <Button fx:id="buttonCancelSeeProduct1" layoutX="460.0" layoutY="311.0" mnemonicParsing="false" onAction="#eventButtonCancelSeeProduct" text="Cancelar" />
+            <TableView layoutX="20.0" layoutY="45.0" prefHeight="260.0" prefWidth="510.0">
+              <columns>
+                <TableColumn prefWidth="75.0" text="ID" />
+                <TableColumn prefWidth="283.0" text="Produto" />
+                  <TableColumn prefWidth="61.0" text="Qtd." />
+                  <TableColumn prefWidth="90.0" text="Preço" />
+              </columns>
+            </TableView>
+            <Button fx:id="buttonCancelSeeProduct11" layoutX="21.0" layoutY="312.0" mnemonicParsing="false" onAction="#eventButtonCancelSeeProduct" text="Comprar" />
+            <Label layoutX="118.0" layoutY="316.0" text="Preço Total:">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="221.0" layoutY="316.0" prefHeight="15.0" prefWidth="156.0" />
          </children>
       </Pane>
    </children>
