@@ -5,10 +5,14 @@
  */
 package client.view;
 
+import client.controller.Controller;
+import static com.sun.glass.ui.Cursor.setVisible;
 import deposit.model.ProductProperty;
-import deposit.util.IProduct;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -135,9 +139,11 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private TableColumn<ProductProperty, String> tableColumnPriceStore;
     
+    private Controller controllerShop;
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        
+        controllerShop = Controller.getInstance();
     }
     
                                     /* Event's */
@@ -154,10 +160,17 @@ public class FXMLInterfaceController implements Initializable{
             labelErrorLogin.setText("ERROR: Senha inválida.");
             labelErrorLogin.setVisible(true);
         } else {
-            paneStore.setVisible(true);
-            labelErrorLogin.setVisible(false);
-            textFieldCnpjLogin.setText("");
-            passwordFieldPassLogin.setText("");
+            try {
+                controllerShop.login(textFieldCnpjLogin.getText().trim(), passwordFieldPassLogin.getText().trim());
+                System.out.println("sdfsdf");
+                paneStore.setVisible(true);
+                labelErrorLogin.setVisible(false);
+                textFieldCnpjLogin.setText("");
+                passwordFieldPassLogin.setText("");
+            } catch (IOException ex) {
+                labelErrorLogin.setText("ERROR: A conexão não pode ser estabelecida.");
+                labelErrorLogin.setVisible(true);
+            }
         }
     }
     

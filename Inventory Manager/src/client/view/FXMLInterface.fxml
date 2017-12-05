@@ -144,7 +144,7 @@
             <Button fx:id="buttonCancelSeeProduct" layoutX="240.0" layoutY="183.0" mnemonicParsing="false" onAction="#eventButtonCancelSeeProduct" text="Cancelar" />
          </children>
       </Pane>
-      <Pane fx:id="paneSeeAddProduct1" layoutX="25.0" layoutY="35.0" prefHeight="350.0" prefWidth="550.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000; -fx-border-width: 5;">
+      <Pane fx:id="paneSeeAddProduct1" layoutX="25.0" layoutY="35.0" prefHeight="350.0" prefWidth="550.0" style="-fx-background-color: #8A8A8A; -fx-border-color: #000000; -fx-border-width: 5;" visible="false">
          <children>
             <Label layoutX="226.0" layoutY="14.0" text="Meu Carrinho">
                <font>

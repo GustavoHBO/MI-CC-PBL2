@@ -11,8 +11,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -24,7 +22,7 @@ public class Distributor {
     private DatagramSocket socketDist;
     private DatagramPacket datagramPacket;
     
-    private final int PORTDIST = 55660;
+    private final int PORTDIST = 55600;
     private final int LCDPROTOCOL = 4;
     private final int LCPROTOCOL = 2;
     
@@ -61,6 +59,8 @@ public class Distributor {
         socketDist = new DatagramSocket(this.PORTDIST); // if the port is busy then a exception is launched.
         controllerDist = Controller.getInstance(); // Get the actual controller.
         controllerDist.readAllData();
+        
+        //sendDatagramPacket("0x00NONE0x00", InetAddress.getByName("localhost"), 55000);// The UDP isn't sending the first message.
 
         while (true) {
             dataByte = new byte[1024];
@@ -71,11 +71,15 @@ public class Distributor {
                 @Override
                 public void run() {
                     String data;
+                    InetAddress ipSender;
+                    int portSender;
                     data = new String(datagramPacket.getData());
-                    identifyAction(data);
+                    ipSender = datagramPacket.getAddress();
+                    portSender = datagramPacket.getPort();
+                    identifyAction(data, ipSender, portSender);
                 }
 
-                private void identifyAction(String data) {
+                private void identifyAction(String data, InetAddress ipSender, int portSender) {
                     String initCode = data.substring(0, LCPROTOCOL);
                     int lastCodeIndex = data.lastIndexOf(initCode);
                     if (lastCodeIndex == 0) {
@@ -84,16 +88,26 @@ public class Distributor {
                     String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCPROTOCOL);
                     if (initCode.equals(endCode)) {
                         data = data.substring(LCPROTOCOL, lastCodeIndex);
+                        System.out.println("Recebido:" + data);
                         switch (initCode) {
                             case "D0":// Test the connection.
-                                sendDatagramPacket("0xD0reply0xD0", datagramPacket.getAddress(), datagramPacket.getPort());
+                                sendDatagramPacket("0xD0reply0xD0", ipSender, portSender);
                                 break;
                             case "D1":// Register a server.
-                                System.out.println("Registrando");
-                                controllerDist.registerServer(data);
+                                try {
+                                    int i = controllerDist.registerServer(data);
+                                    if(i == 0){
+                                        System.out.println("INFO: Um server tentou se registrar novamente.");
+                                    } else {
+                                        System.out.println("INFO: Um novo server foi registrado.");
+                                    }
+                                } catch (IOException ex) {
+                                    System.out.println("ERROR: Não foi possível armazenar os dados.");
+                                }
+                                sendDatagramPacket("0xD1registered0xD1", ipSender, portSender);
                                 break;
                             case "D2":// Solicitation a server.
-                                sendDatagramPacket("0xD2" + controllerDist.getServer() + "0xD2", datagramPacket.getAddress(), datagramPacket.getPort());
+                                sendDatagramPacket("D2" + controllerDist.getServer() + "D2", ipSender, portSender);
                                 break;
                             case "D8":
                                 break;
@@ -124,8 +138,9 @@ public class Distributor {
             sendData = data.getBytes();
             sendPacket = new DatagramPacket(sendData, sendData.length, ip, port);
             socketDist.send(sendPacket);
+            System.out.println("Enviando: " + data + "\nPara: " + ip +":"+port);
         } catch (IOException ex) {
-            System.out.println("ERROR: A packet don't can to be send");
+            System.out.println("ERROR: Um pacote não pode ser enviado.");
         }
     }
 }

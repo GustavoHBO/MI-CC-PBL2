@@ -46,10 +46,12 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,10 +65,10 @@ public class Server {
     private Controller controllerServer = null;
     
             /* Port UDP */
-    private final int port = 12345;
+    private final int PORTSERVER = 12345;
     
             /* Port TCP */
-    private final int PORTTCP = 55123;
+    private final int PORTTCP = 55500;
     
     private String ipDist;
     private int portDist;
@@ -85,7 +87,7 @@ public class Server {
     byte[] sendData = null;
     
     public static void main(String args[]) {
-            Server server;
+        Server server;
         try {
             server = new Server();
             server.startServerUDP();
@@ -95,7 +97,7 @@ public class Server {
         } catch (UnknownHostException ex) {
             System.out.println("ERROR: O Host não é reconhecido!");
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ERROR: Não foi possível estabelecer a comunicação TCP.");
         }
     }
     /*_______________________________________________________________________________________________________________*/
@@ -106,12 +108,14 @@ public class Server {
      */
     private void startServerUDP() throws SocketException, UnknownHostException {
         controllerServer = Controller.getInstance();
-        serverSocket = new DatagramSocket(port);
+        serverSocket = new DatagramSocket(PORTSERVER);
         receiveData = new byte[1024];
-
+        
+        //sendDatagramPacket("0x00NONE0x00", InetAddress.getByName("localhost"), 55000);// The UDP isn't sending the first message.
+        
         /* Now, the server will send a packet to distribuitor for register the server*/
         sendDatagramPacket(mountDataRegisterCloud(), InetAddress.getByName(ipDist), portDist);
-        System.out.println("Resposta do Cloud:" + replyServer());
+        System.out.println("Resposta do Distribuidor:" + replyServer());
         
         while (true) {
             try {
@@ -135,6 +139,7 @@ public class Server {
                         String endCode = data.substring(lastCodeIndex, lastCodeIndex + LENGTHCODEPROTOCOL);
                         if (initCode.equals(endCode)) {
                             data = data.substring(LENGTHCODEPROTOCOL, lastCodeIndex);
+                            System.out.println("Recebido: " + data);
                             switch (initCode) {
                                 case "00":
                                     break;
@@ -174,7 +179,11 @@ public class Server {
 
                 }
             };
+            thread = new Thread(run);
+            thread.start();
         }
+        
+        
     }
 
     /*_______________________________________________________________________________________________________________*/
@@ -190,6 +199,7 @@ public class Server {
             sendData = data.getBytes();
             sendPacket = new DatagramPacket(sendData, sendData.length, ip, port);
             serverSocket.send(sendPacket);
+            System.out.println("Enviando: " + data);
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -243,7 +253,19 @@ public class Server {
         try {
             System.out.println("Bem-Vindo!");
             String input;
-            dataSend = "D1" + InetAddress.getLocalHost().getHostAddress() + controllerServer.getTOKENSEPARATOR() + port + controllerServer.getTOKENSEPARATOR() + controllerServer.getPosX()+ controllerServer.getTOKENSEPARATOR() + controllerServer.getPosY() +"D1";
+            String myIp = "";
+            Enumeration e = NetworkInterface.getNetworkInterfaces();
+            while (e.hasMoreElements()) {
+                NetworkInterface i = (NetworkInterface) e.nextElement();
+                Enumeration ds = i.getInetAddresses();
+                while (ds.hasMoreElements()) {
+                    InetAddress myself = (InetAddress) ds.nextElement();
+                    if (!myself.isLoopbackAddress() && myself.isSiteLocalAddress()) {
+                        myIp = myself.getHostAddress();
+                    }
+                }
+            }
+            dataSend = "D1" + myIp + controllerServer.getTOKENSEPARATOR() + PORTSERVER + controllerServer.getTOKENSEPARATOR() + controllerServer.getPosX() + controllerServer.getTOKENSEPARATOR() + controllerServer.getPosY() + "D1";
             do {
                 System.out.println("\nDigite o IP do servidor!");
                 input = inFromUser.readLine();

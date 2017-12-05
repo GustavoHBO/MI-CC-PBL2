@@ -69,16 +69,16 @@ public class Controller implements Serializable{
     /**
      * Register the server.
      * @param server - Server to register.
+     * @return 0 - If the server can't be register, 1 - Is the server was registered.
+     * @throws java.io.IOException - If the register can't be saved.
      */
-    public void registerServer(String server){
+    public int registerServer(String server) throws IOException{
         if(findServer(server) == null){
             listServers.add(server);
-            try {
-                saveAllData();
-            } catch (IOException ex) {
-                System.out.println("ERROR: Não foi possível armazenar os dados.");
-            }
+            saveAllData();
+            return 1;
         }
+        return 0;
     }
     
     /**

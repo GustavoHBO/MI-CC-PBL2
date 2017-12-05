@@ -22,7 +22,7 @@
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
+ * "Portions Copyrighted 2017 Gautstafr Inc."
  *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
@@ -35,17 +35,17 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  *
- * Contributor(s):
+ * Contributor(s): Gustavo Henrique
  */
 package client.controller;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
@@ -59,11 +59,15 @@ public class Controller {
     /* Instance of controller */
     private static Controller controller;
     
-    private DatagramSocket socketControl;
+    /* Communication UDP */
+    private DatagramSocket socketUDP;
     private DatagramPacket datagramPacket;
     
     byte[] receiveData = null;
     byte[] sendData = null;
+    
+    /* Communication TCP */
+    private Socket socketTCP;
     
     private final String TOKESEPARATOR = "!=";
     
@@ -71,9 +75,10 @@ public class Controller {
     private final int LCPROTOCOL = 2;
     
     private String ipDist = "127.0.0.1";
-    private int portDist = 55660;
+    private int portDist = 55600;
     
-    private boolean getServer = true;
+    private String ipServer = null;
+    private int portServer = 0;
     
                             /* Design Pattern Singleton */
     
@@ -103,47 +108,53 @@ public class Controller {
                                                 /* Methods of control */
     
                                                   /* Communications */
+                                                  
+                                                        /* UDP */
+    
     /**
      * Get the server using the distributor.
      */
-    private void getServer() throws SocketException{
-        socketControl = new DatagramSocket();
+    private void getServer() throws SocketException {
+
+        Runnable run;
+        Thread thread;
+
+        socketUDP = new DatagramSocket();
+        //sendDatagramPacket("Iniciar conexão", ipDist, portDist);
         
-        TimerTask timerTask;
-        Timer timer = new Timer(true);
-        getServer = true;
-        while(getServer){
-            
-            datagramPacket = new DatagramPacket(sendData, portDist);
-            
-            timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    sendDatagramPacket("D2serverD2", ipDist, portDist);
-                    try {
-                        socketControl.receive(datagramPacket);
-                        String data = new String(datagramPacket.getData());
-                        String initCode = data.substring(0, LCDPROTOCOL);
-                        int lastCodeIndex = data.lastIndexOf(initCode);
-                        if (lastCodeIndex == 0) {
-                            return;
-                        }
-                        String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCDPROTOCOL);
-                        if (initCode.equals(endCode)) {
-                            String[] dataSplited = data.split(TOKESEPARATOR);
-                            ipDist = dataSplited[0];
-                            portDist = Integer.parseInt(dataSplited[1]);
-                            getServer = false;
-                        }
-                    } catch (IOException ex) {
-                        System.out.println("ERROR: A packet can't be sent");
+        run = new Runnable() {
+            @Override
+            public void run() {
+                
+                byte[] receiveData = new byte[1024];
+                
+                sendDatagramPacket("D2serverD2", ipDist, portDist);
+                
+                try {
+                    socketUDP.receive(datagramPacket);
+                    String data = new String(datagramPacket.getData());
+                    
+                    System.out.println("Recebido: " + data);
+                    
+                    String initCode = data.substring(0, LCDPROTOCOL);
+                    int lastCodeIndex = data.lastIndexOf(initCode);
+                    if (lastCodeIndex == 0) {
+                        return;
                     }
+                    String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCDPROTOCOL);
+                    if (initCode.equals(endCode)) {
+                        String[] dataSplited = data.split(TOKESEPARATOR);
+                        ipServer = dataSplited[0];
+                        portServer = Integer.parseInt(dataSplited[1]);
+                    }
+                } catch (IOException ex) {
+                    System.out.println("ERROR: A packet can't be sent");
                 }
-            };
-            
-            timer.scheduleAtFixedRate(timerTask, 0, 10 * 1000);
-            
-        }
+            }
+        };
+
+        thread = new Thread(run);
+        thread.start();
     }
     
     /**
@@ -157,9 +168,43 @@ public class Controller {
             DatagramPacket sendPacket;
             sendData = data.getBytes();
             sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(ip), port);
-            socketControl.send(sendPacket);
+            socketUDP.send(sendPacket);
+            System.out.println("Enviando: " + data);
         } catch (IOException ex) {
             System.out.println("ERROR: A packet don't can to be send");
+        }
+    }
+                                                        /* TCP */
+    
+    /**
+     * This method is responsible for get the id and the password for do login on server.
+     * @param loginID - Identify code.
+     * @param pass - Password.
+     * @return 1 - The login is done, 1 - If the login is wrong.
+     * @throws java.io.IOException - If the connection can't be started.
+     */
+    public int login(String loginID, String pass) throws IOException{
+        getServer();
+        System.out.println("Cheguei aqui 1");
+        sendData("testando a comunicação TCP");
+        System.out.println("Cheguei aqui 2");
+        return 0;
+    }
+    
+    /**
+     * Send the data using the communication TCP.
+     * @param data - Data to send.
+     * @throws IOException - Case the communication can't be started.
+     */
+    private void sendData(String data) throws IOException {
+
+        if (ipServer != null && portServer != 0) {
+
+            socketTCP = new Socket(ipServer, portServer);
+            PrintStream outPut = new PrintStream(socketTCP.getOutputStream());
+            outPut.write(data.getBytes());
+            
+            System.out.println("Enviado: " + data);
         }
     }
 }
