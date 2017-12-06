@@ -65,7 +65,7 @@ public class Server {
     private Controller controllerServer = null;
     
             /* Port UDP */
-    private final int PORTSERVER = 12345;
+    private final int PORTSERVER = 55601;
     
             /* Port TCP */
     private final int PORTTCP = 55500;
@@ -78,7 +78,6 @@ public class Server {
     
             /* Connection UDP */
     private DatagramSocket serverSocket = null;
-    private DatagramPacket receivePacket = null;
     
             /* Connection TCP */
     private ServerSocket socketTCP;
@@ -107,19 +106,26 @@ public class Server {
      * @throws UnknownHostException  - Case the host be unknown.
      */
     private void startServerUDP() throws SocketException, UnknownHostException {
+        String reply;
         controllerServer = Controller.getInstance();
         serverSocket = new DatagramSocket(PORTSERVER);
         receiveData = new byte[1024];
         
-        //sendDatagramPacket("0x00NONE0x00", InetAddress.getByName("localhost"), 55000);// The UDP isn't sending the first message.
-        
         /* Now, the server will send a packet to distribuitor for register the server*/
         sendDatagramPacket(mountDataRegisterCloud(), InetAddress.getByName(ipDist), portDist);
-        System.out.println("Resposta do Distribuidor:" + replyServer());
+        reply = replyServer();
+        
+        System.out.println("Resposta do Distribuidor:" + reply);
+        
+        if(reply.equals("registered")){
+            System.out.println("INFO: Servidor registrado.");
+        } else {
+            System.out.println("INFO: Servidor já registrado anteriormente.");
+        }
         
         while (true) {
             try {
-                receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
                 
                 Runnable run;
@@ -142,6 +148,7 @@ public class Server {
                             System.out.println("Recebido: " + data);
                             switch (initCode) {
                                 case "00":
+                                    sendDatagramPacket("0xS0connected0xS0", receivePacket.getAddress(), receivePacket.getPort());
                                     break;
                                 case "01":
                                     break;

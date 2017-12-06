@@ -20,7 +20,6 @@ public class Distributor {
     
             /* Statement of the Variables */
     private DatagramSocket socketDist;
-    private DatagramPacket datagramPacket;
     
     private final int PORTDIST = 55600;
     private final int LCDPROTOCOL = 4;
@@ -39,6 +38,7 @@ public class Distributor {
      */
     public static void main(String[] args) {
         try {
+            System.out.println("Distribuidor Iniciado!\n");
             new Distributor().startDistributor();
         } catch (IOException ex) {
             System.out.println("Error: Não foi possível iniciar o servidor.");
@@ -58,22 +58,20 @@ public class Distributor {
                 /* Starting the socket in port choose */
         socketDist = new DatagramSocket(this.PORTDIST); // if the port is busy then a exception is launched.
         controllerDist = Controller.getInstance(); // Get the actual controller.
-        controllerDist.readAllData();
+        //controllerDist.readAllData();
         
-        //sendDatagramPacket("0x00NONE0x00", InetAddress.getByName("localhost"), 55000);// The UDP isn't sending the first message.
-
         while (true) {
             dataByte = new byte[1024];
-            datagramPacket = new DatagramPacket(dataByte, dataByte.length);
+            DatagramPacket datagramPacket = new DatagramPacket(dataByte, dataByte.length);
             socketDist.receive(datagramPacket);
-
+            System.out.println("INFO: Nova Conexão\n");
+            System.out.println("Mensagem: "+(new String(datagramPacket.getData())));
             run = new Runnable() {
                 @Override
                 public void run() {
-                    String data;
+                    String data = new String(datagramPacket.getData());
                     InetAddress ipSender;
                     int portSender;
-                    data = new String(datagramPacket.getData());
                     ipSender = datagramPacket.getAddress();
                     portSender = datagramPacket.getPort();
                     identifyAction(data, ipSender, portSender);
@@ -88,7 +86,6 @@ public class Distributor {
                     String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCPROTOCOL);
                     if (initCode.equals(endCode)) {
                         data = data.substring(LCPROTOCOL, lastCodeIndex);
-                        System.out.println("Recebido:" + data);
                         switch (initCode) {
                             case "D0":// Test the connection.
                                 sendDatagramPacket("0xD0reply0xD0", ipSender, portSender);
@@ -98,13 +95,15 @@ public class Distributor {
                                     int i = controllerDist.registerServer(data);
                                     if(i == 0){
                                         System.out.println("INFO: Um server tentou se registrar novamente.");
+                                        sendDatagramPacket("0xD1notregistered0xD1", ipSender, portSender);
                                     } else {
                                         System.out.println("INFO: Um novo server foi registrado.");
+                                        sendDatagramPacket("0xD1registered0xD1", ipSender, portSender);
                                     }
                                 } catch (IOException ex) {
                                     System.out.println("ERROR: Não foi possível armazenar os dados.");
                                 }
-                                sendDatagramPacket("0xD1registered0xD1", ipSender, portSender);
+                                
                                 break;
                             case "D2":// Solicitation a server.
                                 sendDatagramPacket("D2" + controllerDist.getServer() + "D2", ipSender, portSender);
@@ -119,7 +118,6 @@ public class Distributor {
                     }
                 }
             };
-            
             thread = new Thread(run);
             thread.start();
         }

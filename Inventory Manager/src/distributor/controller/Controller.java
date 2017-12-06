@@ -80,7 +80,7 @@ public class Controller implements Serializable{
         }
         return 0;
     }
-    
+
     /**
      * Search the server using the data of the server.
      * @param server - Server to search.
@@ -89,9 +89,11 @@ public class Controller implements Serializable{
     private String findServer(String server){
         Iterator<String> it = listServers.iterator();
         
-        while(it.hasNext()){
+        while(!listServers.isEmpty()){
             if(it.next().equals(server)){
                 return server;
+            } else if(!it.hasNext()){
+                return null;
             }
         }
         return null;
