@@ -24,8 +24,9 @@ public class Distributor {
     private final int PORTDIST = 55600;
     private final int LCDPROTOCOL = 4;
     private final int LCPROTOCOL = 2;
+    private final int TIMEOUT = 500;
     
-    private final String TOKESEPARATOR = "!=";
+    private final String TOKENSEPARATOR = "!=";
     
     private Controller controllerDist;
     
@@ -86,7 +87,7 @@ public class Distributor {
                     String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCPROTOCOL);
                     if (initCode.equals(endCode)) {
                         data = data.substring(LCPROTOCOL, lastCodeIndex);
-                        switch (initCode) {
+                        switch (/*initCode*/"D2") {
                             case "D0":// Test the connection.
                                 sendDatagramPacket("0xD0reply0xD0", ipSender, portSender);
                                 break;
@@ -106,7 +107,7 @@ public class Distributor {
                                 
                                 break;
                             case "D2":// Solicitation a server.
-                                sendDatagramPacket("D2" + controllerDist.getServer() + "D2", ipSender, portSender);
+                                sendTestDatagramPacket(ipSender, portSender);
                                 break;
                             case "D8":
                                 break;
@@ -140,5 +141,47 @@ public class Distributor {
         } catch (IOException ex) {
             System.out.println("ERROR: Um pacote não pode ser enviado.");
         }
+    }
+    
+    /**
+     * Send an data string test for a client with ip and a port.
+     * @param data - Data to send.
+     * @param ip - Ip of destiny.
+     * @param port - Port of destiny.
+     */
+    private int sendTestDatagramPacket(InetAddress ip, int port) {
+        try {
+            String data = "00testconnection00";
+            String dataReply;
+            DatagramSocket socketTester = new DatagramSocket();
+            socketTester.setSoTimeout(TIMEOUT);
+            DatagramPacket sendPacket;
+            DatagramPacket receivePacket;
+            byte[] receiveByte = new byte[1024];
+            receivePacket = new DatagramPacket(receiveByte, receiveByte.length);
+            sendData = data.getBytes();
+            sendPacket = new DatagramPacket(sendData, sendData.length, ip, port);
+            System.out.println("INFO: Testando conexão com o servidor");
+            System.out.println("IP: " + ip.getHostAddress() + " Port: " + port);
+            for(int i = 0; i < 5; i++){
+                System.out.println("Testando: 0" + i);
+                socketTester.send(sendPacket);
+                try{
+                socketTester.receive(receivePacket);
+                dataReply = new String(receivePacket.getData());
+                    if(dataReply.equals("0x00connected0x00")){
+                        return 1;
+                    }
+                } catch (SocketException e){
+                    System.out.println("AVISO: Host não conectado.");
+                    if(i < 4){
+                        System.out.println("AVISO: Testando novamente.");
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println("ERROR: Um pacote não pode ser enviado.");
+        }
+        return 0;
     }
 }
