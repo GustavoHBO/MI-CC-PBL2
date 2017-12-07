@@ -73,6 +73,8 @@ public class Controller {
     
     private final int LCDPROTOCOL = 4;
     private final int LCPROTOCOL = 2;
+    private final int TIMEOUT = 500;
+    private final int TIMETRY = 10;
     
     private String ipDist = "127.0.0.1";
     private int portDist = 55600;
@@ -118,20 +120,30 @@ public class Controller {
 
         Runnable run;
         Thread thread;
-
+        
         socketUDP = new DatagramSocket();
-        //sendDatagramPacket("Iniciar conexão", ipDist, portDist);
         
         run = new Runnable() {
             @Override
             public void run() {
-                
                 byte[] receiveData = new byte[1024];
-                
-                sendDatagramPacket("D2serverD2", ipDist, portDist);
-                
+                datagramPacket = new DatagramPacket(receiveData, receiveData.length);
                 try {
-                    socketUDP.receive(datagramPacket);
+                    socketUDP.setSoTimeout(TIMEOUT);
+                    for (int i = 0; i < TIMETRY; i++) {
+                        System.out.println("INFO: Tentando conectar ao distribuidor.");
+                        try{
+                            sendDatagramPacket("D2getserverD2", ipDist, portDist);
+                            socketUDP.receive(datagramPacket);
+                        } catch (SocketException e){
+                            System.out.println("INFO: Tentativa: 0" + i + " falhou.");
+                            if(i < 4){
+                                System.out.println("INFO: Não existe servidores disponíveis.");
+                                return;
+                            }
+                        }
+                    }
+                    
                     String data = new String(datagramPacket.getData());
                     
                     System.out.println("Recebido: " + data);
@@ -174,7 +186,7 @@ public class Controller {
             System.out.println("ERROR: A packet don't can to be send");
         }
     }
-                                                        /* TCP */
+
     
     /**
      * This method is responsible for get the id and the password for do login on server.
@@ -185,11 +197,10 @@ public class Controller {
      */
     public int login(String loginID, String pass) throws IOException{
         getServer();
-        System.out.println("Cheguei aqui 1");
-        sendData("testando a comunicação TCP");
-        System.out.println("Cheguei aqui 2");
         return 0;
     }
+    
+                                                        /* TCP */
     
     /**
      * Send the data using the communication TCP.

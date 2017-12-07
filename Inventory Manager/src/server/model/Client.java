@@ -35,138 +35,130 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  *
- * Contributor(s):
+ * Contributor(s): Gustavo Henrique.
  */
-package server.controller;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import server.model.Client;
+package server.model;
 
 /**
- * This controller control the connections of the server with the clients and
- * deposits.
  *
- * @author Gustavo Henrique
+ * @author gustavo
  */
-public class Controller {
-
-    /* Instace static for establish the design patter Singleton */
-    private static Controller instance;
+public class Client {
     
-    /* Statement of variables */
-    
-    private final String TOKENSEPARATOR = "!=";
-    private final int LENGTHSERVERPROTOCOL = 4;
-    private final int LENGTHPROTOCOL = 2;
-
-    private int posX;
-    private int posY;
-    
-    private ArrayList<Client> listClients;
-
-    /* Turn the constructor in private for use only an instance of the class */
-    private Controller() {
-        listClients = new ArrayList<>();
-    }
+    private String cpf; // CPF of the client;
+    private String nome; // Name of the client;
+    private String numero; // Number of the client;
+    private String posX; // Position in x of the client;
+    private String posY; // Position in y of the client;
+    private String password; // Password of the client;
 
     /**
-     * Return the instance of the class.
-     * @return instance - Instance of the class.
+     * Constructor default.
      */
-    public static Controller getInstance() {
-        if (instance == null) {
-            instance = new Controller();
-        }
-        return instance;
+    public Client(){
+        
     }
-
-    /**
-     * Reset the instance of controller.
-     */
-    public void resetController() {
-        instance = null;
-    }
-
-                                   /* Control */
     
     /**
-     * Register the client if he not was registered.
+     * Constructor of the class, get the parameters and put in instance.
      * @param cpf - CPF of the client;
      * @param nome - Name of the client;
      * @param numero - Number of the client;
      * @param posX - Position in x of the client;
      * @param posY - Position in y of the client;
      * @param password - Password of the client;
-     * @return 0 - If the client not was registered, 1 - If the client was registered.
      */
-    public int registerClient(String cpf, String nome, String numero, String posX, String posY, String password){
-        Client client;
-        if(findClient(cpf) == null){
-            client = new Client(cpf, nome, numero, posX, posY, password);
-            listClients.add(client);
-            return 1;
-        }
-        return 0;
+    public Client(String cpf, String nome, String numero, String posX, String posY, String password){
+        this.cpf = cpf;
+        this.nome = nome;
+        this.numero = numero;
+        this.posX = posX;
+        this.posY = posY;
+        this.password = password;
     }
     
     /**
-     * Search the client using the cpf him.
-     * @param cpf - CPF of the client.
-     * @return null - If the client with this cpf not exist, client - If the client exist.
+     * @return the nome
      */
-    private Client findClient(String cpf){
-        Iterator<Client> it = listClients.iterator();
-        Client client;
-        while(it.hasNext()){
-            client = it.next();
-            if(client.getCpf().equals(cpf)){
-                return client;
-            }
-        }
-        return null;
-    }
-    
-                                  /* Encapsulate fields */
-    
-    /**
-     * Return the TOKENSEPARATOR.
-     * @return the TOKENSEPARATOR
-     */
-    public String getTOKENSEPARATOR() {
-        return TOKENSEPARATOR;
+    public String getNome() {
+        return nome;
     }
 
     /**
-     * Return the position X.
+     * @param nome the nome to set
+     */
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    /**
+     * @return the numero
+     */
+    public String getNumero() {
+        return numero;
+    }
+
+    /**
+     * @param numero the numero to set
+     */
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+
+    /**
      * @return the posX
      */
-    public int getPosX() {
+    public String getPosX() {
         return posX;
     }
 
     /**
-     * Set the position X.
      * @param posX the posX to set
      */
-    public void setPosX(int posX) {
+    public void setPosX(String posX) {
         this.posX = posX;
     }
 
     /**
-     * Return the position Y.
      * @return the posY
      */
-    public int getPosY() {
+    public String getPosY() {
         return posY;
     }
 
     /**
-     * Set the position Y.
      * @param posY the posY to set
      */
-    public void setPosY(int posY) {
+    public void setPosY(String posY) {
         this.posY = posY;
+    }
+
+    /**
+     * @return the cpf
+     */
+    public String getCpf() {
+        return cpf;
+    }
+
+    /**
+     * @param cpf the cpf to set
+     */
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
     
 }

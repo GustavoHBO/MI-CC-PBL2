@@ -11,6 +11,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -59,7 +62,7 @@ public class Distributor {
                 /* Starting the socket in port choose */
         socketDist = new DatagramSocket(this.PORTDIST); // if the port is busy then a exception is launched.
         controllerDist = Controller.getInstance(); // Get the actual controller.
-        //controllerDist.readAllData();
+        controllerDist.readAllData();
         
         while (true) {
             dataByte = new byte[1024];
@@ -87,7 +90,7 @@ public class Distributor {
                     String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCPROTOCOL);
                     if (initCode.equals(endCode)) {
                         data = data.substring(LCPROTOCOL, lastCodeIndex);
-                        switch (/*initCode*/"D2") {
+                        switch (initCode) {
                             case "D0":// Test the connection.
                                 sendDatagramPacket("0xD0reply0xD0", ipSender, portSender);
                                 break;
@@ -107,7 +110,23 @@ public class Distributor {
                                 
                                 break;
                             case "D2":// Solicitation a server.
-                                sendTestDatagramPacket(ipSender, portSender);
+                                String server;
+                                InetAddress ip;
+                                int j;
+                                for (int i = 0; i < controllerDist.amountServers(); i++) {
+                                    try {
+                                        server = controllerDist.getServer();
+                                        ip = InetAddress.getByName(server.substring(0, server.indexOf(TOKENSEPARATOR)));
+                                        j = sendTestDatagramPacket(ip, portSender);
+                                        if (j == 1) {
+                                            sendDatagramPacket(server.split(TOKENSEPARATOR)[0], ipSender, portSender);
+                                            System.out.println("Ip do server" );
+                                            return;
+                                        }
+                                    } catch (UnknownHostException ex) {
+                                        System.out.println("ERROR: Não foi possível identificar um servidor registrado anteriormente.");
+                                    }
+                                }
                                 break;
                             case "D8":
                                 break;
@@ -151,7 +170,7 @@ public class Distributor {
      */
     private int sendTestDatagramPacket(InetAddress ip, int port) {
         try {
-            String data = "00testconnection00";
+            String data = "0x00testconnection0x00";
             String dataReply;
             DatagramSocket socketTester = new DatagramSocket();
             socketTester.setSoTimeout(TIMEOUT);

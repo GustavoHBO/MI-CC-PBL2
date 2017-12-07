@@ -110,13 +110,21 @@ public class Controller implements Serializable{
         return iteratorDist.next();
     }
     
+    /**
+     * Return the amount of the servers that are registers.
+     * @return size - Amount of the servers registered.
+     */
+    public int amountServers(){
+        return listServers.size();
+    }
+    
                                                /* Methods in storage */
     /**
      * Save the data in an archive .im
      * @return 0 - If the list is null or empty, 1 case the data was save.
      * @throws IOException - If the archive can't be create.
      */
-    public int saveAllData() throws IOException {
+    private int saveAllData() throws IOException {
         OutputStream os;
         OutputStreamWriter osw;
         BufferedWriter bw;

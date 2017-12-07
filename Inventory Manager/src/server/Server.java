@@ -70,11 +70,14 @@ public class Server {
             /* Port TCP */
     private final int PORTTCP = 55500;
     
+    private final int LENGTHCODEPROTOCOL = 2;
+    private final int LENGTHCODEPROTOCOLSERVER = 4;
+    
+    private final String TOKENSEPARATOR = "!=";
+    
     private String ipDist;
     private int portDist;
     
-    private final int LENGTHCODEPROTOCOL = 2;
-    private final int LENGTHCODEPROTOCOLSERVER = 4;
     
             /* Connection UDP */
     private DatagramSocket serverSocket = null;
@@ -115,8 +118,6 @@ public class Server {
         sendDatagramPacket(mountDataRegisterCloud(), InetAddress.getByName(ipDist), portDist);
         reply = replyServer();
         
-        System.out.println("Resposta do Distribuidor:" + reply);
-        
         if(reply.equals("registered")){
             System.out.println("INFO: Servidor registrado.");
         } else {
@@ -137,6 +138,8 @@ public class Server {
                     }
                     
                     private void identifyAction(String data) {
+                        InetAddress ipSender = receivePacket.getAddress();
+                        int portSender = receivePacket.getPort();
                         String initCode = data.substring(0, LENGTHCODEPROTOCOL);
                         int lastCodeIndex = data.lastIndexOf(initCode);
                         if (lastCodeIndex == 0) {
@@ -147,10 +150,24 @@ public class Server {
                             data = data.substring(LENGTHCODEPROTOCOL, lastCodeIndex);
                             System.out.println("Recebido: " + data);
                             switch (initCode) {
-                                case "00":
+                                case "00":// Test the connection with it.
                                     sendDatagramPacket("0xS0connected0xS0", receivePacket.getAddress(), receivePacket.getPort());
                                     break;
                                 case "01":
+                                    String[] dataSplited = data.split(TOKENSEPARATOR);
+                                    String reply = "";
+                                    int i = controllerServer.registerClient(dataSplited[0], dataSplited[1], dataSplited[2], dataSplited[3], dataSplited[4], dataSplited[5]);
+                                    
+                                    if(i == 1){
+                                        System.out.println("INFOR: Novo cliente registrado.");
+                                        reply = "0xS1registered0xS1";
+                                    } else {
+                                        System.out.println("INFOR: Cliente já registrado.");
+                                        reply = "0xS1notregistered0xS1";
+                                    }
+                                    
+                                    sendDatagramPacket(reply, ipSender, portSender);
+                                    
                                     break;
                                 case "08":
                                     break;
