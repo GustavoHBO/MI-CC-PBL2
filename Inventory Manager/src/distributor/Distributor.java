@@ -11,9 +11,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -27,7 +26,7 @@ public class Distributor {
     private final int PORTDIST = 55600;
     private final int LCDPROTOCOL = 4;
     private final int LCPROTOCOL = 2;
-    private final int TIMEOUT = 500;
+    private final int TIMEOUT = 10000;
     
     private final String TOKENSEPARATOR = "!=";
     
@@ -107,7 +106,6 @@ public class Distributor {
                                 } catch (IOException ex) {
                                     System.out.println("ERROR: Não foi possível armazenar os dados.");
                                 }
-                                
                                 break;
                             case "D2":// Solicitation a server.
                                 String server;
@@ -116,7 +114,9 @@ public class Distributor {
                                 for (int i = 0; i < controllerDist.amountServers(); i++) {
                                     try {
                                         server = controllerDist.getServer();
+                                        System.out.println("Server: " + server);
                                         ip = InetAddress.getByName(server.substring(0, server.indexOf(TOKENSEPARATOR)));
+                                        
                                         j = sendTestDatagramPacket(ip, portSender);
                                         if (j == 1) {
                                             sendDatagramPacket(server.split(TOKENSEPARATOR)[0], ipSender, portSender);
@@ -170,7 +170,7 @@ public class Distributor {
      */
     private int sendTestDatagramPacket(InetAddress ip, int port) {
         try {
-            String data = "0x00testconnection0x00";
+            String data = "00testconnection00";
             String dataReply;
             DatagramSocket socketTester = new DatagramSocket();
             socketTester.setSoTimeout(TIMEOUT);
@@ -178,8 +178,7 @@ public class Distributor {
             DatagramPacket receivePacket;
             byte[] receiveByte = new byte[1024];
             receivePacket = new DatagramPacket(receiveByte, receiveByte.length);
-            sendData = data.getBytes();
-            sendPacket = new DatagramPacket(sendData, sendData.length, ip, port);
+            sendPacket = new DatagramPacket(data.getBytes(), data.getBytes().length, ip, port);
             System.out.println("INFO: Testando conexão com o servidor");
             System.out.println("IP: " + ip.getHostAddress() + " Port: " + port);
             for(int i = 0; i < 5; i++){
@@ -191,10 +190,10 @@ public class Distributor {
                     if(dataReply.equals("0x00connected0x00")){
                         return 1;
                     }
-                } catch (SocketException e){
-                    System.out.println("AVISO: Host não conectado.");
+                } catch (SocketTimeoutException e){
+                    System.out.println("AVISO: Testando novamente.");
                     if(i < 4){
-                        System.out.println("AVISO: Testando novamente.");
+                        System.out.println("AVISO: Host não conectado.");
                     }
                 }
             }
