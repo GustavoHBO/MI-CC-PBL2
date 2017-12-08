@@ -24,9 +24,10 @@ public class Distributor {
     private DatagramSocket socketDist;
     
     private final int PORTDIST = 55600;
+    private final int PORTSERVER = 55601;
     private final int LCDPROTOCOL = 4;
     private final int LCPROTOCOL = 2;
-    private final int TIMEOUT = 10000;
+    private final int TIMEOUT = 1;// Set the time out for test connection, the time is in seconds.
     
     private final String TOKENSEPARATOR = "!=";
     
@@ -61,7 +62,6 @@ public class Distributor {
                 /* Starting the socket in port choose */
         socketDist = new DatagramSocket(this.PORTDIST); // if the port is busy then a exception is launched.
         controllerDist = Controller.getInstance(); // Get the actual controller.
-        controllerDist.readAllData();
         
         while (true) {
             dataByte = new byte[1024];
@@ -110,17 +110,18 @@ public class Distributor {
                             case "D2":// Solicitation a server.
                                 String server;
                                 InetAddress ip;
-                                int j;
+                                int j = 0;
+                                System.out.println(controllerDist.amountServers());
                                 for (int i = 0; i < controllerDist.amountServers(); i++) {
                                     try {
                                         server = controllerDist.getServer();
-                                        System.out.println("Server: " + server);
+                                        System.out.println("\nServer: " + server);
                                         ip = InetAddress.getByName(server.substring(0, server.indexOf(TOKENSEPARATOR)));
-                                        
-                                        j = sendTestDatagramPacket(ip, portSender);
+                                        j = sendTestDatagramPacket(ip, PORTSERVER);
+                                        System.out.println("Valor J:" + j);
                                         if (j == 1) {
                                             sendDatagramPacket(server.split(TOKENSEPARATOR)[0], ipSender, portSender);
-                                            System.out.println("Ip do server" );
+                                            System.out.println("Ip do server");
                                             return;
                                         }
                                     } catch (UnknownHostException ex) {
@@ -173,27 +174,30 @@ public class Distributor {
             String data = "00testconnection00";
             String dataReply;
             DatagramSocket socketTester = new DatagramSocket();
-            socketTester.setSoTimeout(TIMEOUT);
+            socketTester.setSoTimeout(TIMEOUT * 1000);
             DatagramPacket sendPacket;
             DatagramPacket receivePacket;
             byte[] receiveByte = new byte[1024];
             receivePacket = new DatagramPacket(receiveByte, receiveByte.length);
             sendPacket = new DatagramPacket(data.getBytes(), data.getBytes().length, ip, port);
-            System.out.println("INFO: Testando conexão com o servidor");
+            System.out.println("\nINFO: Testando conexão com o servidor");
             System.out.println("IP: " + ip.getHostAddress() + " Port: " + port);
-            for(int i = 0; i < 5; i++){
-                System.out.println("Testando: 0" + i);
+            for (int i = 0; i < 5; i++) {
+                System.out.println("Teste " + i);
                 socketTester.send(sendPacket);
-                try{
-                socketTester.receive(receivePacket);
-                dataReply = new String(receivePacket.getData());
-                    if(dataReply.equals("0x00connected0x00")){
+                try {
+                    socketTester.receive(receivePacket);
+                    System.out.println("Recebi: " + new String(receivePacket.getData()));
+                    dataReply = new String(receivePacket.getData());
+                    if (dataReply.trim().equals("0xS0connected0xS0")) {
+                        System.out.println("AVISO: Host conectado.");
                         return 1;
                     }
-                } catch (SocketTimeoutException e){
-                    System.out.println("AVISO: Testando novamente.");
-                    if(i < 4){
+                } catch (SocketTimeoutException e) {
+                    if (i >= 4) {
                         System.out.println("AVISO: Host não conectado.");
+                    } else {
+                        System.out.println("AVISO: Testando novamente.");
                     }
                 }
             }
