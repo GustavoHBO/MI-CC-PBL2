@@ -141,11 +141,12 @@ public class Server {
                         InetAddress ipSender = receivePacket.getAddress();
                         int portSender = receivePacket.getPort();
                         String initCode = data.substring(0, LENGTHCODEPROTOCOL);
+                        String endCode;
                         int lastCodeIndex = data.lastIndexOf(initCode);
                         if (lastCodeIndex == 0) {
                             return;
                         }
-                        String endCode = data.substring(lastCodeIndex, lastCodeIndex + LENGTHCODEPROTOCOL);
+                        endCode = data.substring(lastCodeIndex, lastCodeIndex + LENGTHCODEPROTOCOL);
                         if (initCode.equals(endCode)) {
                             data = data.substring(LENGTHCODEPROTOCOL, lastCodeIndex);
                             System.out.println("Recebido: " + data);
@@ -165,11 +166,18 @@ public class Server {
                                         System.out.println("INFOR: Cliente já registrado.");
                                         reply = "0xS1notregistered0xS1";
                                     }
-                                    
                                     sendDatagramPacket(reply, ipSender, portSender);
-                                    
                                     break;
-                                case "08":
+                                case "02":
+                                    System.out.println("Registrar Cliente");
+                                    String[] replySplited;
+                                    replySplited = data.split(TOKENSEPARATOR);
+                                    int registed = controllerServer.registerClient(replySplited[0], replySplited[1], replySplited[2], replySplited[3], replySplited[4], replySplited[5]);
+                                    if(registed == 1){
+                                        sendDatagramPacket("0x02registed0x02", ipSender, portSender);
+                                    } else {
+                                        sendDatagramPacket("0x02notregisted0x02", ipSender, portSender);
+                                    }
                                     break;
                                 case "09":
                                     break;

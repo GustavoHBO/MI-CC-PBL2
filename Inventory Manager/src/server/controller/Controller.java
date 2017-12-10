@@ -104,6 +104,22 @@ public class Controller {
         Client client;
         if(findClient(cpf) == null){
             client = new Client(cpf, nome, numero, posX, posY, password);
+            
+            /* This code below is only explain the communication */
+            
+            /* Start code explain */
+            System.out.println("Cadastrando novo cliente:");
+            
+            System.out.println("Cpf: " + cpf);
+            System.out.println("Nome: " + nome);
+            System.out.println("Numero: " + numero);
+            System.out.println("PosiçãoX: " + posX);
+            System.out.println("PosiçãoY: " + posY);
+            System.out.println("Senha: " + password);
+            System.out.println("Nome: " + nome);
+            
+            /* End code explain */
+            
             listClients.add(client);
             return 1;
         }
