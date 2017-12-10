@@ -39,9 +39,20 @@
  */
 package server.controller;
 
+import server.model.Deposit;
+import server.model.Client;
+import server.model.Product;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
-import server.model.Client;
 
 /**
  * This controller control the connections of the server with the clients and
@@ -59,15 +70,18 @@ public class Controller {
     private final String TOKENSEPARATOR = "!=";
     private final int LENGTHSERVERPROTOCOL = 4;
     private final int LENGTHPROTOCOL = 2;
+    
+    private ArrayList<Deposit> listDeposit;
+    private ArrayList<Product> listProduct;
+    private ArrayList<Client> listClient;
 
     private int posX;
     private int posY;
     
-    private ArrayList<Client> listClients;
 
     /* Turn the constructor in private for use only an instance of the class */
     private Controller() {
-        listClients = new ArrayList<>();
+        listClient = new ArrayList<>();
     }
 
     /**
@@ -89,7 +103,7 @@ public class Controller {
     }
 
                                    /* Control */
-    
+                                   /* Client */
     /**
      * Register the client if he not was registered.
      * @param cpf - CPF of the client;
@@ -120,7 +134,7 @@ public class Controller {
             
             /* End code explain */
             
-            listClients.add(client);
+            getListClient().add(client);
             return 1;
         }
         return 0;
@@ -132,7 +146,7 @@ public class Controller {
      * @return null - If the client with this cpf not exist, client - If the client exist.
      */
     private Client findClient(String cpf){
-        Iterator<Client> it = listClients.iterator();
+        Iterator<Client> it = getListClient().iterator();
         Client client;
         while(it.hasNext()){
             client = it.next();
@@ -141,6 +155,270 @@ public class Controller {
             }
         }
         return null;
+    }
+                                  /* Deposit */
+    
+    /**
+     * Register the deposit if he not was registered.
+     * @param cpf - CPF of the deposit;
+     * @param cnpj - Name of the deposit;
+     * @param nameSocial - Number of the deposit;
+     * @param fantasyName - Number of the deposit;
+     * @param number - Number of the deposit;
+     * @param posX - Position in x of the deposit;
+     * @param posY - Position in y of the deposit;
+     * @param password - Password of the deposit;
+     * @return 0 - If the deposit not was registered, 1 - If the deposit was registered.
+     */
+    public int registerDeposit(String cpf, String cnpj, String nameSocial, String fantasyName, String number, String password, int posX, int posY){
+        Deposit deposit;
+        if(findDeposit(cpf) == null){
+            deposit = new Deposit(cpf, cnpj, fantasyName, fantasyName, number, password, posX, posY);
+            
+            /* This code below is only explain the communication */
+            
+            /* Start code explain */
+            System.out.println("\nCadastrando novo Deposito:");
+            
+            System.out.println("Cpf: " + cpf);
+            System.out.println("CNPJ: " + cnpj);
+            System.out.println("Nome Social: " + nameSocial);
+            System.out.println("Nome Fantasia: " + fantasyName);
+            System.out.println("Senha: " + password);
+            System.out.println("Numero: " + number);
+            System.out.println("PosiçãoX: " + posX);
+            System.out.println("PosiçãoY: " + posY);
+            System.out.println("");
+            
+            /* End code explain */
+            
+            listDeposit.add(deposit);
+            return 1;
+        }
+        return 0;
+    }
+    
+    /**
+     * Search the deposit using the cnpj him.
+     * @param cnpj - CNPJ of the deposit.
+     * @return null - If the deposit with this cnpj not exist, deposit - If the deposit exist.
+     */
+    private Deposit findDeposit(String cnpj){
+        Iterator<Deposit> it = listDeposit.iterator();
+        Deposit deposit;
+        while(it.hasNext()){
+            deposit = it.next();
+            if(deposit.getCpf().equals(cnpj)){
+                return deposit;
+            }
+        }
+        return null;
+    }
+    
+                                    /* Store Data */
+    
+    /**
+     * Save the data in an archive .im
+     * @throws IOException - If the archive can't be create.
+     */
+    public void saveAllData() throws IOException {
+        saveProduct();
+        saveClient();
+    }
+    
+    /**
+     * Save the data of the products.
+     * @throws IOException - If the file cannot be created.
+     */
+    private void saveProduct() throws IOException{
+        OutputStream os;
+        OutputStreamWriter osw;
+        BufferedWriter bw;
+        Iterator<Product> it;
+        Product product;
+
+        File file = new File("./backup/server/product");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        file = new File("./backup/server/product/data.im");
+        if (file.exists()) {// Delete the archive for that to save the new.
+            file.delete();
+        }
+        file.createNewFile();
+        
+        if(getListProduct() == null || getListProduct().isEmpty()){
+            return;
+        } else {
+            /* Storage Products */
+            os = new FileOutputStream(file);
+            osw = new OutputStreamWriter(os);
+            bw = new BufferedWriter(osw);
+            it = getListProduct().iterator();
+            bw.write(Product.getIdentifier());// Write the actual identifier.
+            bw.newLine();
+            while (it.hasNext()) {
+                product = it.next();
+                bw.write(product.getIdRegister());
+                bw.write(TOKENSEPARATOR);
+                bw.write(product.getId());
+                bw.write(TOKENSEPARATOR);
+                bw.write(product.getName());
+                bw.write(TOKENSEPARATOR);
+                bw.write(product.getPrice());
+                bw.write(TOKENSEPARATOR);
+                bw.write(Integer.toString(product.getAmount()));
+                if(it.hasNext()){// If have next, then create new line for next product.
+                    bw.newLine();
+                }
+            }
+            bw.close();
+            osw.close();
+            os.close();
+        }
+    }
+    
+    /**
+     * Save the data of the clients.
+     * @throws IOException - If the file cannot be created.
+     */
+    private void saveClient() throws IOException{
+        OutputStream os;
+        OutputStreamWriter osw;
+        BufferedWriter bw;
+        Iterator<Client> it;
+        Client client;
+
+        File file = new File("./backup/server/client");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        file = new File("./backup/server/client/data.im");
+        if (file.exists()) {// Delete the archive for that to save the new.
+            file.delete();
+        }
+        file.createNewFile();
+        
+        if(getListClient() == null || getListClient().isEmpty()){
+            return;
+        } else {
+            /* Storage Client */
+            os = new FileOutputStream(file);
+            osw = new OutputStreamWriter(os);
+            bw = new BufferedWriter(osw);
+            it = getListClient().iterator();
+            bw.write(Client.getIdentifier());// Write the actual identifier.
+            bw.newLine();
+            while (it.hasNext()) {
+                client = it.next();
+                bw.write(client.getIdRegister());
+                bw.write(TOKENSEPARATOR);
+                bw.write(client.getCpf());
+                bw.write(TOKENSEPARATOR);
+                bw.write(client.getNome());
+                bw.write(TOKENSEPARATOR);
+                bw.write(client.getNumero());
+                bw.write(TOKENSEPARATOR);
+                bw.write(client.getPassword());
+                bw.write(TOKENSEPARATOR);
+                bw.write(client.getPosX());
+                bw.write(TOKENSEPARATOR);
+                bw.write(client.getPosY());
+                if(it.hasNext()){// If have next, then create new line for next product.
+                    bw.newLine();
+                }
+            }
+            bw.close();
+            osw.close();
+            os.close();
+        }
+    }
+
+    /**
+     * Read all data in storage and put in a list.
+     * @throws IOException - If the file can't to be read.
+     */
+    public void readAllData() throws IOException {
+        readProductData();
+        readClientData();
+    }
+    
+    /**
+     * Read the data of the product on archive and put in list.
+     * @throws FileNotFoundException - If the file not exist.
+     * @throws IOException - If the file can't be read.
+     */
+    private void readProductData() throws FileNotFoundException, IOException{
+        File file = new File("./backup/server/product/data.im");
+        if (!file.exists()) {
+            //Return, because the else catch the rest.
+        } else {
+            FileReader fileReader;
+            fileReader = new FileReader(file);// FileReader it read the archive.
+            BufferedReader bufferedReader;
+            bufferedReader = new BufferedReader(fileReader);//BufferedReader it store the data read in a buffer.
+            Product product;
+            String dataLine;
+            String[] dataLineSplited;
+
+            if (getListProduct() == null)
+                listProduct = new ArrayList<>();
+            if(bufferedReader.ready())
+                Product.setIdentifier(Integer.parseInt(bufferedReader.readLine()));
+            while (bufferedReader.ready()) {
+                dataLine = bufferedReader.readLine();
+                dataLineSplited = dataLine.split(TOKENSEPARATOR);
+                product = new Product();
+                product.setIdRegister(Integer.parseInt(dataLineSplited[0]));
+                product.setId(dataLineSplited[1]);
+                product.setName(dataLineSplited[2]);
+                product.setPrice(dataLineSplited[3]);
+                product.setAmount(Integer.parseInt(dataLineSplited[4]));
+                getListProduct().add(product);
+            }
+            bufferedReader.close();
+            fileReader.close();
+        }
+    }
+    
+    /**
+     * Read the data of the client on archive and put in list.
+     * @throws FileNotFoundException - If the file not exist.
+     * @throws IOException - If the file can't be read.
+     */
+    private void readClientData() throws FileNotFoundException, IOException{
+        File file = new File("./backup/server/client/data.im");
+        if (file.exists()){
+            FileReader fileReader;
+            fileReader = new FileReader(file);// FileReader it read the archive.
+            BufferedReader bufferedReader;
+            bufferedReader = new BufferedReader(fileReader);//BufferedReader it store the data read in a buffer.
+            Client client;
+            String dataLine;
+            String[] dataLineSplited;
+
+            if (getListProduct() == null)
+                listProduct = new ArrayList<>();
+            if(bufferedReader.ready())
+                Product.setIdentifier(Integer.parseInt(bufferedReader.readLine()));
+            while (bufferedReader.ready()) {
+                dataLine = bufferedReader.readLine();
+                dataLineSplited = dataLine.split(TOKENSEPARATOR);
+                client = new Client();
+                client.setIdRegister(Integer.parseInt(dataLineSplited[0]));
+                client.setCpf(dataLineSplited[1]);
+                client.setNome(dataLineSplited[2]);
+                client.setNumero(dataLineSplited[3]);
+                client.setPassword(dataLineSplited[4]);
+                client.setPosX(dataLineSplited[5]);
+                client.setPosY(dataLineSplited[6]);
+                getListClient().add(client);
+            }
+            bufferedReader.close();
+            fileReader.close();
+        }
     }
     
                                   /* Encapsulate fields */
@@ -185,4 +463,18 @@ public class Controller {
         this.posY = posY;
     }
     
+    /**
+     * Return the list with the products registered.
+     * @return the listProduct - List of products.
+     */
+    public ArrayList<Product> getListProduct() {
+        return listProduct;
+    }
+
+    /**
+     * @return the listClient
+     */
+    public ArrayList<Client> getListClient() {
+        return listClient;
+    }
 }
