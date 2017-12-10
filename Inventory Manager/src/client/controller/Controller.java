@@ -46,6 +46,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -61,7 +64,6 @@ public class Controller {
     
     /* Communication UDP */
     private DatagramSocket socketUDP;
-    private DatagramPacket datagramPacket;
     
     byte[] receiveData = null;
     byte[] sendData = null;
@@ -69,12 +71,12 @@ public class Controller {
     /* Communication TCP */
     private Socket socketTCP;
     
-    private final String TOKESEPARATOR = "!=";
+    private final String TOKENSEPARATOR = "!=";
     
     private final int LCDPROTOCOL = 4;
     private final int LCPROTOCOL = 2;
-    private final int TIMEOUT = 500;
-    private final int TIMETRY = 10;
+    private final int TIMEOUT = 5; // Time in seconds.
+    private final int TIMETRY = 3;
     
     private String ipDist = "127.0.0.1";
     private int portDist = 55600;
@@ -85,7 +87,13 @@ public class Controller {
                             /* Design Pattern Singleton */
     
     /* The constructor is private for use the singleton */
-    private Controller(){}
+    private Controller(){
+        try {
+            getServer();
+        } catch (SocketException ex) {
+            System.out.println("Error: Erro ao tentar obter um servidor.");
+        }
+    }
     
     /**
      * Return the instance of controller.
@@ -109,6 +117,52 @@ public class Controller {
     
                                                 /* Methods of control */
     
+    /**
+     * This method is responsible for get the id and the password for do login on server.
+     * @param loginID - Identify code.
+     * @param pass - Password.
+     * @return 1 - The login is done, 1 - If the login is wrong.
+     * @throws java.io.IOException - If the connection can't be started.
+     */
+    public int login(String loginID, String pass) throws IOException{
+        getServer();
+        
+        if(ipServer != null){
+            sendTimeoutDatagramPacket("", ipServer, portServer);
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Register the client on server
+     * @param cpf - CPF
+     * @param name - Name
+     * @param number - Number
+     * @param posX - Position X
+     * @param posY - Position Y
+     * @param password - Password
+     * @throws java.net.SocketException - If the connection can't be established.
+     */
+    public void registerClient(String cpf, String name, String number, String posX, String posY, String password) throws SocketException {
+
+        String reply;
+        getServer();
+        if (ipServer != null) {
+            /* Send all data of the client */
+            System.out.println("Cheguei aqui");
+            reply = sendTimeoutDatagramPacket("02" + cpf + TOKENSEPARATOR
+                    + name + TOKENSEPARATOR
+                    + number + TOKENSEPARATOR
+                    + posX + TOKENSEPARATOR
+                    + posY + TOKENSEPARATOR
+                    + password + "02", ipServer, portServer);
+            if (reply.equals("registered")) {
+
+            }
+        }
+    }
+    
                                                   /* Communications */
                                                   
                                                         /* UDP */
@@ -127,38 +181,48 @@ public class Controller {
             @Override
             public void run() {
                 byte[] receiveData = new byte[1024];
+                DatagramPacket datagramPacket;
                 datagramPacket = new DatagramPacket(receiveData, receiveData.length);
                 try {
-                    socketUDP.setSoTimeout(TIMEOUT);
+                    socketUDP.setSoTimeout(TIMEOUT * 1000);
                     for (int i = 0; i < TIMETRY; i++) {
                         System.out.println("INFO: Tentando conectar ao distribuidor.");
-                        try{
+                        try {
                             sendDatagramPacket("D2getserverD2", ipDist, portDist);
                             socketUDP.receive(datagramPacket);
-                        } catch (SocketException e){
-                            System.out.println("INFO: Tentativa: 0" + i + " falhou.");
-                            if(i < 4){
-                                System.out.println("INFO: Não existe servidores disponíveis.");
+                            String data = new String(datagramPacket.getData());
+
+                            System.out.println("Recebido: " + data);
+
+                            String initCode = data.substring(0, LCDPROTOCOL);
+                            data = data.substring(LCDPROTOCOL);
+                            int lastCodeIndex = data.lastIndexOf(initCode);
+                            if (lastCodeIndex == 0) {
+                                return;
+                            }
+                            String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCDPROTOCOL);
+                            data = data.substring(0, lastCodeIndex);
+                            if (initCode.equals(endCode)) {
+                                if (data.equals("withoutserver")) { // If the distributor not have a server connected.
+                                    ipServer = null;
+                                    portServer = 0;
+                                } else {
+                                    String[] dataSplited = data.split(TOKENSEPARATOR);
+                                    System.out.println("IP: " + dataSplited[0] + ", Port: " + dataSplited[1]);
+                                    ipServer = dataSplited[0];
+                                    portServer = Integer.parseInt(dataSplited[1]);
+                                }
+                            }
+                            return;
+                        } catch (SocketTimeoutException e) {
+                            System.out.println("INFO: Tentativa " + i + 1 + " falhou.");
+                            if (i < 4) {
+                                System.out.println("INFO: Distribuidor não disponível.");
                                 return;
                             }
                         }
                     }
-                    
-                    String data = new String(datagramPacket.getData());
-                    
-                    System.out.println("Recebido: " + data);
-                    
-                    String initCode = data.substring(0, LCDPROTOCOL);
-                    int lastCodeIndex = data.lastIndexOf(initCode);
-                    if (lastCodeIndex == 0) {
-                        return;
-                    }
-                    String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCDPROTOCOL);
-                    if (initCode.equals(endCode)) {
-                        String[] dataSplited = data.split(TOKESEPARATOR);
-                        ipServer = dataSplited[0];
-                        portServer = Integer.parseInt(dataSplited[1]);
-                    }
+
                 } catch (IOException ex) {
                     System.out.println("ERROR: A packet can't be sent");
                 }
@@ -168,6 +232,7 @@ public class Controller {
         thread = new Thread(run);
         thread.start();
     }
+    
     
     /**
      * Send an data string for a client with ip and a port.
@@ -186,19 +251,49 @@ public class Controller {
             System.out.println("ERROR: A packet don't can to be send");
         }
     }
-
     
     /**
-     * This method is responsible for get the id and the password for do login on server.
-     * @param loginID - Identify code.
-     * @param pass - Password.
-     * @return 1 - The login is done, 1 - If the login is wrong.
-     * @throws java.io.IOException - If the connection can't be started.
+     * Send an data string test for a client with ip and a port.
+     * @param data - Data to send.
+     * @param ip - Ip of destiny.
+     * @param port - Port of destiny.
      */
-    public int login(String loginID, String pass) throws IOException{
-        getServer();
-        return 0;
+    private String sendTimeoutDatagramPacket(String data, String ip, int port) {
+        System.out.println("Enviando: " + data);
+        try {
+            String dataReply;
+            InetAddress ipSend = InetAddress.getByName(ip);
+            DatagramSocket socketTester = new DatagramSocket();
+            socketTester.setSoTimeout(TIMEOUT * 1000);
+            DatagramPacket sendPacket;
+            DatagramPacket receivePacket;
+            byte[] receiveByte = new byte[1024];
+            receivePacket = new DatagramPacket(receiveByte, receiveByte.length);
+            sendPacket = new DatagramPacket(data.getBytes(), data.getBytes().length, ipSend, port);
+            for (int i = 0; i < 3; i++) {
+                socketTester.send(sendPacket);
+                try {
+                    socketTester.receive(receivePacket);
+                    System.out.println("Recebi: " + new String(receivePacket.getData()));
+                    dataReply = new String(receivePacket.getData());
+                    return dataReply;
+                } catch (SocketTimeoutException e) {
+                    if (i >= 4) {
+                        System.out.println("AVISO: Host não conectado.");
+                        getServer();
+                    } else {
+                        System.out.println("AVISO: Testando novamente.");
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println("ERROR: Um pacote não pode ser enviado.");
+        }
+        return null;
     }
+
+    
+    
     
                                                         /* TCP */
     

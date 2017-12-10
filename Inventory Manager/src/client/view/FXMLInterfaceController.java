@@ -8,6 +8,7 @@ package client.view;
 import client.controller.Controller;
 import deposit.model.ProductProperty;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -159,7 +160,6 @@ public class FXMLInterfaceController implements Initializable{
         } else {
             try {
                 controllerShop.login(textFieldCnpjLogin.getText().trim(), passwordFieldPassLogin.getText().trim());
-                System.out.println("sdfsdf");
                 paneStore.setVisible(true);
                 labelErrorLogin.setVisible(false);
                 textFieldCnpjLogin.setText("");
@@ -209,6 +209,12 @@ public class FXMLInterfaceController implements Initializable{
             labelErrorRegister.setVisible(true);
         } else {
             labelErrorRegister.setVisible(false);
+            
+            try{
+                controllerShop.registerClient(textFieldCpfRegister.getText(), textFieldNameRegister.getText().trim(), textFieldNumberRegister.getText(), textFieldPositionXRegister.getText(), textFieldPositionYRegister.getText(), passwordFieldPassRegister.getText().trim());
+            } catch (SocketException e){
+                labelErrorRegister.setText("ERROR: Não foi possível se conectar.");
+            }
         }
     }
     
