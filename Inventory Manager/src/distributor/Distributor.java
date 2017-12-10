@@ -118,11 +118,11 @@ public class Distributor {
                                         System.out.println("\nServer: " + server);
                                         ip = InetAddress.getByName(server.substring(0, server.indexOf(TOKENSEPARATOR)));
                                         j = sendTestDatagramPacket(ip, PORTSERVER);
-                                        System.out.println("Valor J:" + j);
                                         if (j == 1) {
-                                            sendDatagramPacket(server.split(TOKENSEPARATOR)[0], ipSender, portSender);
-                                            System.out.println("Ip do server");
+                                            sendDatagramPacket("0xD2" + server + "0xD2", ipSender, portSender);
                                             return;
+                                        } else if (i + 1 >= controllerDist.amountServers()) {
+                                            sendDatagramPacket("0xD2withoutserver0xD2", ipSender, portSender);
                                         }
                                     } catch (UnknownHostException ex) {
                                         System.out.println("ERROR: Não foi possível identificar um servidor registrado anteriormente.");
@@ -165,7 +165,6 @@ public class Distributor {
     
     /**
      * Send an data string test for a client with ip and a port.
-     * @param data - Data to send.
      * @param ip - Ip of destiny.
      * @param port - Port of destiny.
      */
@@ -182,8 +181,8 @@ public class Distributor {
             sendPacket = new DatagramPacket(data.getBytes(), data.getBytes().length, ip, port);
             System.out.println("\nINFO: Testando conexão com o servidor");
             System.out.println("IP: " + ip.getHostAddress() + " Port: " + port);
-            for (int i = 0; i < 5; i++) {
-                System.out.println("Teste " + i);
+            for (int i = 0; i < 3; i++) {
+                System.out.println("Teste " + i + 1);
                 socketTester.send(sendPacket);
                 try {
                     socketTester.receive(receivePacket);
