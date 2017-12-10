@@ -45,12 +45,15 @@ package server.model;
  */
 public class Client {
     
+    private static int identifier = 0;
+    
     private String cpf; // CPF of the client;
     private String nome; // Name of the client;
     private String numero; // Number of the client;
     private String posX; // Position in x of the client;
     private String posY; // Position in y of the client;
     private String password; // Password of the client;
+    private int idRegister; // Identifier of the client.
 
     /**
      * Constructor default.
@@ -75,6 +78,7 @@ public class Client {
         this.posX = posX;
         this.posY = posY;
         this.password = password;
+        this.idRegister = identifier++;
     }
     
     /**
@@ -159,6 +163,34 @@ public class Client {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * @return the identifier
+     */
+    public static int getIdentifier() {
+        return identifier;
+    }
+
+    /**
+     * @param aIdentifier the identifier to set
+     */
+    public static void setIdentifier(int aIdentifier) {
+        identifier = aIdentifier;
+    }
+
+    /**
+     * @return the idRegister
+     */
+    public int getIdRegister() {
+        return idRegister;
+    }
+
+    /**
+     * @param idRegister the idRegister to set
+     */
+    public void setIdRegister(int idRegister) {
+        this.idRegister = idRegister;
     }
     
 }
