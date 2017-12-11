@@ -74,6 +74,9 @@ public class Controller {
     private ArrayList<Deposit> listDeposit;
     private ArrayList<Product> listProduct;
     private ArrayList<Client> listClient;
+    
+    private ArrayList<String> listAssociationTable;// Association the product with deposits.
+    private ArrayList<String> listAssociationTableProductReserve;// Association the product reserved.
 
     private int posX;
     private int posY;
@@ -82,6 +85,10 @@ public class Controller {
     /* Turn the constructor in private for use only an instance of the class */
     private Controller() {
         listClient = new ArrayList<>();
+        listProduct = new ArrayList<>();
+        listClient = new ArrayList<>();
+        listAssociationTable = new ArrayList<>();
+        listAssociationTableProductReserve = new ArrayList<>();
     }
 
     /**
@@ -113,8 +120,9 @@ public class Controller {
      * @param posY - Position in y of the client;
      * @param password - Password of the client;
      * @return 0 - If the client not was registered, 1 - If the client was registered.
+     * @throws java.io.IOException - If the data can't be stored.
      */
-    public int registerClient(String cpf, String nome, String numero, String posX, String posY, String password){
+    public int registerClient(String cpf, String nome, String numero, String posX, String posY, String password) throws IOException{
         Client client;
         if(findClient(cpf) == null){
             client = new Client(cpf, nome, numero, posX, posY, password);
@@ -135,6 +143,7 @@ public class Controller {
             /* End code explain */
             
             getListClient().add(client);
+            saveClient();
             return 1;
         }
         return 0;
@@ -192,7 +201,7 @@ public class Controller {
             
             /* End code explain */
             
-            listDeposit.add(deposit);
+            getListDeposit().add(deposit);
             return 1;
         }
         return 0;
@@ -204,15 +213,55 @@ public class Controller {
      * @return null - If the deposit with this cnpj not exist, deposit - If the deposit exist.
      */
     private Deposit findDeposit(String cnpj){
-        Iterator<Deposit> it = listDeposit.iterator();
+        Iterator<Deposit> it = getListDeposit().iterator();
         Deposit deposit;
         while(it.hasNext()){
             deposit = it.next();
-            if(deposit.getCpf().equals(cnpj)){
+            if(deposit.getCnpj().equals(cnpj)){
                 return deposit;
             }
         }
         return null;
+    }
+    
+    /**
+     * Search for the product using your ID and your deposit ID.
+     * @param cnpj - CNPJ of the deposit.
+     * @return null - If the product with this id not exist or if deposit with this id not exist, product - If the product exist on deposit.
+     */
+    private Product findProductAssociation(String idProduct, String idDeposit){
+        Iterator<String> it = getListAssociationTable().iterator();
+        Iterator<Product> itP = getListProduct().iterator();
+        String associationString;
+        String[] associationStringSplited;
+        Product product;
+        while(it.hasNext()){
+            associationString = it.next();
+            associationStringSplited = associationString.split(TOKENSEPARATOR);
+            if(associationStringSplited[0].equals(idDeposit)){
+                while(itP.hasNext()){
+                    product = itP.next();
+                    if(product.getId().equals(idProduct)){
+                        return product;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    private int removeProduct(String idProduct, int amount, String idDeposit) {
+        Product product;
+
+        product = findProductAssociation(idProduct, idDeposit);
+        if (product.getAmount() > amount) {
+            product.setAmount(product.getAmount() - amount);
+            return 1;
+        }
+        return 0;
+    }
+    
+    private void reserveProduct(String idProduct, int amount, String cpf){
     }
     
                                     /* Store Data */
@@ -224,6 +273,7 @@ public class Controller {
     public void saveAllData() throws IOException {
         saveProduct();
         saveClient();
+        saveDeposit();
     }
     
     /**
@@ -326,6 +376,67 @@ public class Controller {
                 bw.write(client.getPosX());
                 bw.write(TOKENSEPARATOR);
                 bw.write(client.getPosY());
+                if(it.hasNext()){// If have next, then create new line for next product.
+                    bw.newLine();
+                }
+            }
+            bw.close();
+            osw.close();
+            os.close();
+        }
+    }
+    
+    /**
+     * Save the data of the deposit.
+     * @throws IOException - If the file cannot be created.
+     */
+    private void saveDeposit() throws IOException{
+        OutputStream os;
+        OutputStreamWriter osw;
+        BufferedWriter bw;
+        Iterator<Deposit> it;
+        Deposit deposit;
+        
+        File file = new File("./backup/server/deposit");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        file = new File("./backup/server/deposit/data.im");
+        if (file.exists()) {// Delete the archive for that to save the new.
+            file.delete();
+        }
+        file.createNewFile();
+        
+        if(getListDeposit() == null || getListDeposit().isEmpty()){
+            return;
+        } else {
+            /* Storage Client */
+            os = new FileOutputStream(file);
+            osw = new OutputStreamWriter(os);
+            bw = new BufferedWriter(osw);
+            it = getListDeposit().iterator();
+            bw.write(Product.getIdentifier());// Write the actual identifier.
+            bw.newLine();
+            while (it.hasNext()) {
+                deposit = it.next();
+                bw.write(deposit.getIdRegister());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getCpf());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getCnpj());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getSocialName());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getFantasyName());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getNumber());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getPassword());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getPosX());
+                bw.write(TOKENSEPARATOR);
+                bw.write(deposit.getPosY());
                 if(it.hasNext()){// If have next, then create new line for next product.
                     bw.newLine();
                 }
@@ -476,5 +587,33 @@ public class Controller {
      */
     public ArrayList<Client> getListClient() {
         return listClient;
+    }
+
+    /**
+     * @return the listDeposit
+     */
+    public ArrayList<Deposit> getListDeposit() {
+        return listDeposit;
+    }
+
+    /**
+     * @param listDeposit the listDeposit to set
+     */
+    public void setListDeposit(ArrayList<Deposit> listDeposit) {
+        this.listDeposit = listDeposit;
+    }
+
+    /**
+     * @return the listAssociationTable
+     */
+    public ArrayList<String> getListAssociationTable() {
+        return listAssociationTable;
+    }
+
+    /**
+     * @param listAssociationTable the listAssociationTable to set
+     */
+    public void setListAssociationTable(ArrayList<String> listAssociationTable) {
+        this.listAssociationTable = listAssociationTable;
     }
 }

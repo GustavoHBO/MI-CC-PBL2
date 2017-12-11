@@ -194,4 +194,18 @@ public class Deposit {
     public void setPosY(int posY) {
         this.posY = posY;
     }
+
+    /**
+     * @return the idRegister
+     */
+    public int getIdRegister() {
+        return idRegister;
+    }
+
+    /**
+     * @param idRegister the idRegister to set
+     */
+    public void setIdRegister(int idRegister) {
+        this.idRegister = idRegister;
+    }
 }

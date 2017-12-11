@@ -110,9 +110,9 @@ public class Server {
      */
     private void startServerUDP() throws SocketException, UnknownHostException {
         String reply;
-        controllerServer = Controller.getInstance();
-        serverSocket = new DatagramSocket(PORTSERVER);
-        receiveData = new byte[1024];
+        controllerServer = Controller.getInstance(); // Get the instance of the controller.
+        serverSocket = new DatagramSocket(PORTSERVER); // Start the ServerSocket on port selected.
+        receiveData = new byte[1024]; // Array of the bytes to storage the datagram received.
         
         /* Now, the server will send a packet to distribuitor for register the server*/
         sendDatagramPacket(mountDataRegisterCloud(), InetAddress.getByName(ipDist), portDist);
@@ -157,26 +157,36 @@ public class Server {
                                 case "01":
                                     String[] dataSplited = data.split(TOKENSEPARATOR);
                                     String reply = "";
-                                    int i = controllerServer.registerClient(dataSplited[0], dataSplited[1], dataSplited[2], dataSplited[3], dataSplited[4], dataSplited[5]);
-                                    
-                                    if(i == 1){
-                                        System.out.println("INFOR: Novo cliente registrado.");
-                                        reply = "0xS1registered0xS1";
-                                    } else {
-                                        System.out.println("INFOR: Cliente já registrado.");
-                                        reply = "0xS1notregistered0xS1";
+                                    int i;
+                                    try {
+                                        i = controllerServer.registerClient(dataSplited[0], dataSplited[1], dataSplited[2], dataSplited[3], dataSplited[4], dataSplited[5]);
+                                        if(i == 1){
+                                            System.out.println("INFOR: Novo cliente registrado.");
+                                            reply = "0xS1registered0xS1";
+                                        } else {
+                                            System.out.println("INFOR: Cliente já registrado.");
+                                            reply = "0xS1notregistered0xS1";
+                                        }
+                                        sendDatagramPacket(reply, ipSender, portSender);
+                                    } catch (IOException ex) {
+                                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                                     }
-                                    sendDatagramPacket(reply, ipSender, portSender);
+                                    
                                     break;
                                 case "02":
                                     System.out.println("Registrar Cliente");
                                     String[] replySplited;
                                     replySplited = data.split(TOKENSEPARATOR);
-                                    int registed = controllerServer.registerClient(replySplited[0], replySplited[1], replySplited[2], replySplited[3], replySplited[4], replySplited[5]);
-                                    if(registed == 1){
-                                        sendDatagramPacket("0x02registed0x02", ipSender, portSender);
-                                    } else {
-                                        sendDatagramPacket("0x02notregisted0x02", ipSender, portSender);
+                                    int registed;
+                                    try {
+                                        registed = controllerServer.registerClient(replySplited[0], replySplited[1], replySplited[2], replySplited[3], replySplited[4], replySplited[5]);
+                                        if(registed == 1){
+                                            sendDatagramPacket("0x02registed0x02", ipSender, portSender);
+                                        } else {
+                                            sendDatagramPacket("0x02notregisted0x02", ipSender, portSender);
+                                        }
+                                    } catch (IOException ex) {
+                                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                     break;
                                 case "09":
