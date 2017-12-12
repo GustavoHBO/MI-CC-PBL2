@@ -15,6 +15,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -199,7 +201,12 @@ public class FXMLInterfaceController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        controllerDeposit = Controller.getInstance();
+        try {
+            controllerDeposit = Controller.getInstance();
+        } catch (SocketException ex) {
+            labelError.setText("ERROR: Não foi possível estabelecer a conexão com o servidor.");
+            labelError.setVisible(true);
+        }
     }
 
                                         /* Button Events Login */
@@ -227,7 +234,7 @@ public class FXMLInterfaceController implements Initializable {
         } else {
             labelErrorLogin.setVisible(false);
             paneManager.setVisible(true);
-            
+            controllerDeposit.setCnpj(textFieldCnpjLogin.getText().trim());
             try {
                 controllerDeposit.readAllData();
             } catch (IOException ex) {

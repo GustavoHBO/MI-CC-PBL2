@@ -31,13 +31,12 @@ public class Product implements IProduct{
     
     /**
      * Constructor of the class.
-     * @param idRegister
      * @param id
      * @param name
      * @param price
      * @param amount 
      */
-    public Product(int idRegister, String id, String name, String price, int amount) {
+    public Product(String id, String name, String price, int amount) {
         this.id = id;
         this.name = name;
         this.price = price;

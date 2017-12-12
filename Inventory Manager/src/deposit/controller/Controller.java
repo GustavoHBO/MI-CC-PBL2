@@ -15,7 +15,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -29,7 +33,7 @@ public class Controller {
     /* Instance of controller */
     private static Controller controller;
     
-    private final String STRINGSAVESEPARATOR = "!=";
+    private final String TOKENSEPARATOR = "!=";
     
     private ArrayList<Product> listProduct;// List with all the products registered.
     
@@ -38,18 +42,39 @@ public class Controller {
     private String ipServer;
     private int portServer;
     
+    private int myId = 0;
+    private String cnpj;
+    
+    private final int LCDPROTOCOL = 4;
+    private final int LCPROTOCOL = 2;
+    private final int TIMEOUT = 5;
+    private final int TIMETRY = 3;
+    
+    private DatagramSocket socketUDP;
+    
+    private String ipDist = "127.0.0.1";
+    private int portDist = 55600;
+    
+    private byte[] sendData;
+    
+    
                             /* Design Pattern Singleton */
     
-    /* The constructor is private for use the singleton */
-    private Controller(){
+    /**
+     * The constructor is private for use the singleton
+     * @throws SocketException - If the socket can't be created.
+     */
+    private Controller() throws SocketException{
         listProduct = new ArrayList<>();
+        getServer();
     }
     
     /**
      * Return the instance of controller.
      * @return controller - An instance.
+     * @throws java.net.SocketException  - If the socket can't be created.
      */
-    public static Controller getInstance(){
+    public static Controller getInstance() throws SocketException{
         if(controller == null){
             controller = new Controller();
         }
@@ -60,7 +85,7 @@ public class Controller {
      * Reset the controller.
      */
     public static void resetController(){
-        controller = new Controller();
+        controller = null;
     }
     
                                                 /* End Singleton */
@@ -79,7 +104,7 @@ public class Controller {
     public int registerProduct(String id, String name, String price, String amount) throws IOException{
         
         Product product = new Product(id, name, price, Integer.parseInt(amount));
-        
+        getServer();
         if(getListProduct() == null)// If the list is null, create a new list.
             listProduct = new ArrayList<>();
         
@@ -87,6 +112,7 @@ public class Controller {
             return 0;
         } else {
             getListProduct().add(product);
+            sendDatagramPacket("03" + id + TOKENSEPARATOR + name + TOKENSEPARATOR + price + TOKENSEPARATOR + amount + TOKENSEPARATOR + getCnpj() + "03", ipServer, portServer);
             saveAllData();
             return 1;
         }
@@ -167,6 +193,94 @@ public class Controller {
         return null;
     }
     
+                                                /* Connection */
+                                                    /* UDP */
+    /**
+     * Get the server using the distributor.
+     */
+    private void getServer() throws SocketException {
+
+        Runnable run;
+        Thread thread;
+        
+        socketUDP = new DatagramSocket();
+        
+        run = new Runnable() {
+            @Override
+            public void run() {
+                byte[] receiveData = new byte[1024];
+                DatagramPacket datagramPacket;
+                datagramPacket = new DatagramPacket(receiveData, receiveData.length);
+                try {
+                    socketUDP.setSoTimeout(TIMEOUT * 1000);
+                    for (int i = 0; i < TIMETRY; i++) {
+                        System.out.println("INFO: Tentando conectar ao distribuidor.");
+                        try {
+                            sendDatagramPacket("D2getserverD2", ipDist, portDist);
+                            socketUDP.receive(datagramPacket);
+                            String data = new String(datagramPacket.getData());
+
+                            System.out.println("Recebido: " + data);
+
+                            String initCode = data.substring(0, LCDPROTOCOL);
+                            data = data.substring(LCDPROTOCOL);
+                            int lastCodeIndex = data.lastIndexOf(initCode);
+                            if (lastCodeIndex == 0) {
+                                return;
+                            }
+                            String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCDPROTOCOL);
+                            data = data.substring(0, lastCodeIndex);
+                            if (initCode.equals(endCode)) {
+                                if (data.equals("withoutserver")) { // If the distributor not have a server connected.
+                                    ipServer = null;
+                                    portServer = 0;
+                                } else {
+                                    String[] dataSplited = data.split(TOKENSEPARATOR);
+                                    System.out.println("IP: " + dataSplited[0] + ", Port: " + dataSplited[1]);
+                                    ipServer = dataSplited[0];
+                                    portServer = Integer.parseInt(dataSplited[1]);
+                                }
+                            }
+                            return;
+                        } catch (SocketTimeoutException e) {
+                            System.out.println("INFO: Tentativa " + i + 1 + " falhou.");
+                            if (i >= 4) {
+                                System.out.println("INFO: Distribuidor não disponível.");
+                                return;
+                            }
+                        }
+                    }
+
+                } catch (IOException ex) {
+                    System.out.println("ERROR: A packet can't be sent");
+                }
+            }
+        };
+
+        thread = new Thread(run);
+        thread.start();
+    }
+    
+    
+    /**
+     * Send an data string for a client with ip and a port.
+     * @param data - Data to send.
+     * @param ip - Ip of destiny.
+     * @param port - Port of destiny.
+     */
+    private void sendDatagramPacket(String data, String ip, int port) {
+        try {
+            DatagramPacket sendPacket;
+            socketUDP = new DatagramSocket();
+            sendData = data.getBytes();
+            sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(ip), port);
+            socketUDP.send(sendPacket);
+            System.out.println("Enviando: " + data);
+        } catch (IOException ex) {
+            System.out.println("ERROR: A packet don't can to be send");
+        }
+    }
+    
                                                 /* Methods in storage */
     /**
      * Save the data in an archive .im
@@ -203,11 +317,11 @@ public class Controller {
             while (it.hasNext()) {
                 product = it.next();
                 bw.write(product.getId());
-                bw.write(STRINGSAVESEPARATOR);
+                bw.write(TOKENSEPARATOR);
                 bw.write(product.getName());
-                bw.write(STRINGSAVESEPARATOR);
+                bw.write(TOKENSEPARATOR);
                 bw.write(product.getPrice());
-                bw.write(STRINGSAVESEPARATOR);
+                bw.write(TOKENSEPARATOR);
                 bw.write(Integer.toString(product.getAmount()));
                 if(it.hasNext()){// If have next, then create new line for next product.
                     bw.newLine();
@@ -243,7 +357,7 @@ public class Controller {
 
             while (bufferedReader.ready()) {
                 dataLine = bufferedReader.readLine();
-                dataLineSplited = dataLine.split(STRINGSAVESEPARATOR);
+                dataLineSplited = dataLine.split(TOKENSEPARATOR);
                 product = new Product(dataLineSplited[0], dataLineSplited[1], dataLineSplited[2], Integer.parseInt(dataLineSplited[3]));
                 getListProduct().add(product);
             }
@@ -268,8 +382,22 @@ public class Controller {
             connector = new Connect();
         }
         connector.connect(ipServer, portServer);
-        connector.sendData("01" + cpf + STRINGSAVESEPARATOR + password + "01");
+        connector.sendData("01" + cpf + TOKENSEPARATOR + password + "01");
 
         return 0;
+    }
+
+    /**
+     * @return the cnpj
+     */
+    public String getCnpj() {
+        return cnpj;
+    }
+
+    /**
+     * @param cnpj the cnpj to set
+     */
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
     }
 }

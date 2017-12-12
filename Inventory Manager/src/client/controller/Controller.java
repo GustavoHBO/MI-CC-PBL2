@@ -39,6 +39,7 @@
  */
 package client.controller;
 
+import client.model.IProduct;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
@@ -126,7 +127,11 @@ public class Controller {
      */
     public int login(String loginID, String pass) throws IOException{
         getServer();
-        
+        try {
+            getProduct();
+        } catch (IOException ex) {
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if(ipServer != null){
             sendTimeoutDatagramPacket("", ipServer, portServer);
         }
@@ -166,6 +171,26 @@ public class Controller {
                                                   /* Communications */
                                                   
                                                         /* UDP */
+    /**
+     * Get the products on server.
+     * @throws IOException - If the packet don't be send.
+     */
+    private String getProduct() throws IOException{
+        DatagramPacket datagram;
+        byte[] dataReceive = new byte[1024];
+        socketUDP = new DatagramSocket();
+        datagram = new DatagramPacket(dataReceive, dataReceive.length);
+        sendDatagramPacket("04getproduct04", ipServer, portServer);
+        socketUDP.receive(datagram);
+        String data = new String(datagram.getData());
+        String[] dataSplited = data.split(TOKENSEPARATOR);
+        IProduct product;
+        if(!data.trim().isEmpty()){
+            for (int i = 0; i < dataSplited.length/3; i++) {
+                
+            }
+        }
+    }
     
     /**
      * Get the server using the distributor.
@@ -215,8 +240,8 @@ public class Controller {
                             }
                             return;
                         } catch (SocketTimeoutException e) {
-                            System.out.println("INFO: Tentativa " + i + 1 + " falhou.");
-                            if (i < 4) {
+                            System.out.println("INFO: Tentativa " + (i + 1) + " falhou.");
+                            if (i >= 4) {
                                 System.out.println("INFO: Distribuidor não disponível.");
                                 return;
                             }

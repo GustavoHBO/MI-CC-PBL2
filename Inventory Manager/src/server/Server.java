@@ -148,6 +148,7 @@ public class Server {
                         }
                         endCode = data.substring(lastCodeIndex, lastCodeIndex + LENGTHCODEPROTOCOL);
                         if (initCode.equals(endCode)) {
+                            String[] replySplited;
                             data = data.substring(LENGTHCODEPROTOCOL, lastCodeIndex);
                             System.out.println("Recebido: " + data);
                             switch (initCode) {
@@ -175,7 +176,6 @@ public class Server {
                                     break;
                                 case "02":
                                     System.out.println("Registrar Cliente");
-                                    String[] replySplited;
                                     replySplited = data.split(TOKENSEPARATOR);
                                     int registed;
                                     try {
@@ -189,7 +189,13 @@ public class Server {
                                         Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                     break;
-                                case "09":
+                                case "03":
+                                    System.out.println("Cadastrando Produto");
+                                    replySplited = data.split(TOKENSEPARATOR);
+                                    controllerServer.registerProduct(replySplited[0], replySplited[1], replySplited[2], Integer.parseInt(replySplited[3]), replySplited[4]);
+                                    break;
+                                case "04":
+                                    sendDatagramPacket(controllerServer.mountDataProduct(), ipSender, portSender);
                                     break;
                                 default:
                                     break;

@@ -250,6 +250,23 @@ public class Controller {
         return null;
     }
     
+    /**
+     * Register the product.
+     * @param id - Identifier.
+     * @param name - Name of product.
+     * @param price - Price.
+     * @param amount - Amount.
+     * @param idDeposit - Id of the deposit.
+     * @return 
+     */
+    public int registerProduct(String id, String name, String price, int amount, String idDeposit){
+        Product product;
+        product = new Product(id, name, price, amount);
+        listProduct.add(product);
+        listAssociationTable.add(idDeposit + TOKENSEPARATOR + product.getIdRegister());
+        return 1;
+    }
+    
     private int removeProduct(String idProduct, int amount, String idDeposit) {
         Product product;
 
@@ -262,6 +279,24 @@ public class Controller {
     }
     
     private void reserveProduct(String idProduct, int amount, String cpf){
+    }
+    
+    /**
+     * Mount the data of the products for clients
+     * @return data - Products on server.
+     */
+    public String mountDataProduct(){
+        String data = "";
+        Iterator<Product> it = listProduct.iterator();
+        Product product;
+        while(it.hasNext()){
+            product = it.next();
+            data += product.getName() + TOKENSEPARATOR + product.getPrice() + TOKENSEPARATOR + product.getIdRegister();
+            if(it.hasNext()){
+               data += TOKENSEPARATOR;
+            }
+        }
+        return data;
     }
     
                                     /* Store Data */
