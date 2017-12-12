@@ -39,7 +39,7 @@
  */
 package client.controller;
 
-import client.model.IProduct;
+import client.model.Product;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
@@ -48,6 +48,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,10 +86,13 @@ public class Controller {
     private String ipServer = null;
     private int portServer = 0;
     
+    private ArrayList<Product> listProduct;
+    
                             /* Design Pattern Singleton */
     
     /* The constructor is private for use the singleton */
     private Controller(){
+        listProduct = new ArrayList();
         try {
             getServer();
         } catch (SocketException ex) {
@@ -175,7 +179,7 @@ public class Controller {
      * Get the products on server.
      * @throws IOException - If the packet don't be send.
      */
-    private String getProduct() throws IOException{
+    private void getProduct() throws IOException{
         DatagramPacket datagram;
         byte[] dataReceive = new byte[1024];
         socketUDP = new DatagramSocket();
@@ -184,10 +188,11 @@ public class Controller {
         socketUDP.receive(datagram);
         String data = new String(datagram.getData());
         String[] dataSplited = data.split(TOKENSEPARATOR);
-        IProduct product;
+        Product product;
         if(!data.trim().isEmpty()){
             for (int i = 0; i < dataSplited.length/3; i++) {
-                
+                product = new Product(dataSplited[2], dataSplited[0], dataSplited[1], 0);
+                listProduct.add(product);
             }
         }
     }

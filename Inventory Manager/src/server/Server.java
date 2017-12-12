@@ -107,8 +107,9 @@ public class Server {
      * Start the server, and register him on cloud.
      * @throws SocketException - If the ip or port is in user.
      * @throws UnknownHostException  - Case the host be unknown.
+     * @throws IOException  - If the socket can't be created.
      */
-    private void startServerUDP() throws SocketException, UnknownHostException {
+    private void startServerUDP() throws SocketException, UnknownHostException, IOException {
         String reply;
         controllerServer = Controller.getInstance(); // Get the instance of the controller.
         serverSocket = new DatagramSocket(PORTSERVER); // Start the ServerSocket on port selected.
@@ -192,7 +193,13 @@ public class Server {
                                 case "03":
                                     System.out.println("Cadastrando Produto");
                                     replySplited = data.split(TOKENSEPARATOR);
-                                    controllerServer.registerProduct(replySplited[0], replySplited[1], replySplited[2], Integer.parseInt(replySplited[3]), replySplited[4]);
+                                     {
+                                        try {
+                                            controllerServer.registerProduct(replySplited[0], replySplited[1], replySplited[2], Integer.parseInt(replySplited[3]), replySplited[4]);
+                                        } catch (IOException ex) {
+                                            System.out.println("ERROR: Não foi possível salvar as alterações.");
+                                        }
+                                    }
                                     break;
                                 case "04":
                                     sendDatagramPacket(controllerServer.mountDataProduct(), ipSender, portSender);

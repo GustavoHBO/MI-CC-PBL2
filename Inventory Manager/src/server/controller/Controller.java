@@ -83,19 +83,22 @@ public class Controller {
     
 
     /* Turn the constructor in private for use only an instance of the class */
-    private Controller() {
+    private Controller() throws IOException {
         listClient = new ArrayList<>();
         listProduct = new ArrayList<>();
         listClient = new ArrayList<>();
         listAssociationTable = new ArrayList<>();
         listAssociationTableProductReserve = new ArrayList<>();
+        
+        readAllData();
     }
 
     /**
      * Return the instance of the class.
      * @return instance - Instance of the class.
+     * @throws java.io.IOException - If the data can't be read.
      */
-    public static Controller getInstance() {
+    public static Controller getInstance() throws IOException {
         if (instance == null) {
             instance = new Controller();
         }
@@ -257,22 +260,23 @@ public class Controller {
      * @param price - Price.
      * @param amount - Amount.
      * @param idDeposit - Id of the deposit.
-     * @return 
+     * @throws java.io.IOException - If the data can't be saved.
      */
-    public int registerProduct(String id, String name, String price, int amount, String idDeposit){
+    public void registerProduct(String id, String name, String price, int amount, String idDeposit) throws IOException{
         Product product;
         product = new Product(id, name, price, amount);
         listProduct.add(product);
         listAssociationTable.add(idDeposit + TOKENSEPARATOR + product.getIdRegister());
-        return 1;
+        saveProduct();
     }
     
-    private int removeProduct(String idProduct, int amount, String idDeposit) {
+    private int removeProduct(String idProduct, int amount, String idDeposit) throws IOException {
         Product product;
 
         product = findProductAssociation(idProduct, idDeposit);
         if (product.getAmount() > amount) {
             product.setAmount(product.getAmount() - amount);
+            saveProduct();
             return 1;
         }
         return 0;
@@ -341,11 +345,11 @@ public class Controller {
             osw = new OutputStreamWriter(os);
             bw = new BufferedWriter(osw);
             it = getListProduct().iterator();
-            bw.write(Product.getIdentifier());// Write the actual identifier.
+            bw.write(Integer.toString(Product.getIdentifier()));// Write the actual identifier.
             bw.newLine();
             while (it.hasNext()) {
                 product = it.next();
-                bw.write(product.getIdRegister());
+                bw.write(Integer.toString(product.getIdRegister()));
                 bw.write(TOKENSEPARATOR);
                 bw.write(product.getId());
                 bw.write(TOKENSEPARATOR);
@@ -511,9 +515,12 @@ public class Controller {
 
             if (getListProduct() == null)
                 listProduct = new ArrayList<>();
-            if(bufferedReader.ready())
-                Product.setIdentifier(Integer.parseInt(bufferedReader.readLine()));
+            if(bufferedReader.ready()){
+                String d = bufferedReader.readLine();
+                Product.setIdentifier(Integer.parseInt(d));
+            }
             while (bufferedReader.ready()) {
+                System.out.println("Mahoe");
                 dataLine = bufferedReader.readLine();
                 dataLineSplited = dataLine.split(TOKENSEPARATOR);
                 product = new Product();
