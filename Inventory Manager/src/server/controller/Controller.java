@@ -520,8 +520,8 @@ public class Controller {
                 Product.setIdentifier(Integer.parseInt(d));
             }
             while (bufferedReader.ready()) {
-                System.out.println("Mahoe");
                 dataLine = bufferedReader.readLine();
+                System.out.println("Lendo: " + dataLine);
                 dataLineSplited = dataLine.split(TOKENSEPARATOR);
                 product = new Product();
                 product.setIdRegister(Integer.parseInt(dataLineSplited[0]));

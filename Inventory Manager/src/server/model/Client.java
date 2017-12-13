@@ -45,7 +45,7 @@ package server.model;
  */
 public class Client {
     
-    private static int identifier = 1;
+    private static int identifier = 0;
     
     private String cpf; // CPF of the client;
     private String nome; // Name of the client;

@@ -6,7 +6,6 @@
 package deposit.view;
 
 import deposit.controller.Controller;
-import deposit.model.Connect;
 import deposit.model.Product;
 import deposit.model.ProductProperty;
 import deposit.util.IProduct;
@@ -15,8 +14,6 @@ import java.net.SocketException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

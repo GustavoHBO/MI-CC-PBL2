@@ -94,9 +94,11 @@ public class Controller {
     private Controller(){
         listProduct = new ArrayList();
         try {
-            getServer();
+            threadRefreshProducts();
+        } catch (InterruptedException ex) {
+            System.out.println("ERROR: Ocorreu um erro.");
         } catch (SocketException ex) {
-            System.out.println("Error: Erro ao tentar obter um servidor.");
+            System.out.println("ERROR: Não foi possível encontrar um servidor.");
         }
     }
     
@@ -131,11 +133,6 @@ public class Controller {
      */
     public int login(String loginID, String pass) throws IOException{
         getServer();
-        try {
-            getProduct();
-        } catch (IOException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-        }
         if(ipServer != null){
             sendTimeoutDatagramPacket("", ipServer, portServer);
         }
@@ -172,6 +169,35 @@ public class Controller {
         }
     }
     
+    
+    /**
+     * Refresh the products of the server.
+     * @throws java.lang.InterruptedException - The synchronized thread.
+     * @throws java.net.SocketException - If the server not be found.
+     */
+    public void threadRefreshProducts() throws InterruptedException, SocketException {
+        Runnable run;
+        Thread thread;
+        run = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    getProduct();
+                } catch (IOException ex) {
+                    System.out.println("Error: Erro ao tentar obter os produtos do servidor.");
+                }
+            }
+        };
+        
+        thread = new Thread(run);
+        thread.start();
+        synchronized(thread){
+            thread.wait();
+            getServer();
+        }
+        
+    }
+    
                                                   /* Communications */
                                                   
                                                         /* UDP */
@@ -189,10 +215,11 @@ public class Controller {
         String data = new String(datagram.getData());
         String[] dataSplited = data.split(TOKENSEPARATOR);
         Product product;
+        listProduct = new ArrayList();
         if(!data.trim().isEmpty()){
             for (int i = 0; i < dataSplited.length/3; i++) {
                 product = new Product(dataSplited[2], dataSplited[0], dataSplited[1], 0);
-                listProduct.add(product);
+                getListProduct().add(product);
             }
         }
     }
@@ -256,6 +283,7 @@ public class Controller {
                 } catch (IOException ex) {
                     System.out.println("ERROR: A packet can't be sent");
                 }
+                notify();
             }
         };
 
@@ -342,5 +370,19 @@ public class Controller {
             
             System.out.println("Enviado: " + data);
         }
+    }
+
+    /**
+     * @return the listProduct
+     */
+    public ArrayList<Product> getListProduct() {
+        return listProduct;
+    }
+
+    /**
+     * @param listProduct the listProduct to set
+     */
+    public void setListProduct(ArrayList<Product> listProduct) {
+        this.listProduct = listProduct;
     }
 }

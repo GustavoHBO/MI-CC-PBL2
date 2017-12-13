@@ -6,11 +6,15 @@
 package client.view;
 
 import client.controller.Controller;
+import client.model.Product;
 import deposit.model.ProductProperty;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -137,6 +141,10 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private TableColumn<ProductProperty, String> tableColumnPriceStore;
     
+        /* ObservableList */
+        /* Show Product */
+    private ObservableList<ProductProperty> observableListProduct;
+    
     private Controller controllerShop;
     
     @Override
@@ -159,11 +167,11 @@ public class FXMLInterfaceController implements Initializable{
             labelErrorLogin.setVisible(true);
         } else {
             try {
-                controllerShop.login(textFieldCnpjLogin.getText().trim(), passwordFieldPassLogin.getText().trim());
                 paneStore.setVisible(true);
                 labelErrorLogin.setVisible(false);
                 textFieldCnpjLogin.setText("");
                 passwordFieldPassLogin.setText("");
+                controllerShop.login(textFieldCnpjLogin.getText().trim(), passwordFieldPassLogin.getText().trim());
             } catch (IOException ex) {
                 labelErrorLogin.setText("ERROR: A conexão não pode ser estabelecida.");
                 labelErrorLogin.setVisible(true);
@@ -282,5 +290,28 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private void eventButtonCancelSeeProduct() {
         paneSeeAddProduct.setVisible(false);
+    }
+    
+    /**
+     * Load the data on list of the products in a table.
+     */
+    @FXML
+    public void loadDataTableView() {
+        Iterator<Product> it;
+        Product product;
+
+        if (controllerShop.getListProduct() != null) {
+            it = controllerShop.getListProduct().iterator();
+            observableListProduct = FXCollections.observableArrayList();
+            while (it.hasNext()) {
+                product = it.next();
+                observableListProduct.add(new ProductProperty(product.getId(), product.getName(), product.getPrice(), product.getAmount()));
+            }
+            tableColumnIdStore.setCellValueFactory(cellData -> cellData.getValue().getId());
+            tableColumnNameStore.setCellValueFactory(cellData -> cellData.getValue().getName());
+            tableColumnPriceStore.setCellValueFactory(cellData -> cellData.getValue().getPrice());
+
+            tableViewProductsStore.setItems(observableListProduct);
+        }
     }
 }

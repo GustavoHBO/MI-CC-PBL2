@@ -14,7 +14,7 @@ import deposit.util.IProduct;
  */
 public class Product implements IProduct{
 
-    private static int identifier = 1;
+    private static int identifier = 0;
     
     private String id;  // Id of product.
     private String name; //Name of product.
