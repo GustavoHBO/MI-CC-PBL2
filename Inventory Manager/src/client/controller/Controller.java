@@ -49,6 +49,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -87,16 +88,19 @@ public class Controller {
     private int portServer = 0;
     
     private ArrayList<Product> listProduct;
+    private ArrayList<Product> listProductCart;
     
                             /* Design Pattern Singleton */
     
     /* The constructor is private for use the singleton */
     private Controller(){
         listProduct = new ArrayList();
+        listProductCart = new ArrayList();
         try {
-            threadRefreshProducts();
-        } catch (InterruptedException ex) {
-            System.out.println("ERROR: Ocorreu um erro.");
+            getServer();
+            //threadRefreshProducts();
+//        } catch (InterruptedException ex) {
+//            System.out.println("ERROR: Ocorreu um erro.");
         } catch (SocketException ex) {
             System.out.println("ERROR: Não foi possível encontrar um servidor.");
         }
@@ -191,11 +195,57 @@ public class Controller {
         
         thread = new Thread(run);
         thread.start();
-        synchronized(thread){
-            thread.wait();
-            getServer();
+    }
+    
+    /**
+     * Get the id and amount of the product.
+     * @param id - Id of product.
+     * @param name - Name of product.
+     * @param price - Price of product.
+     * @param amount - Amount of build.
+     */
+    public void addProductCart(String id, String name, String price, String amount){
+        System.out.println("Adicionando o produto");
+        getListProductCart().add(new Product(id, name, Float.toString(Float.parseFloat(price.replace(",", "."))*Integer.parseInt(amount)), Integer.parseInt(amount)));
+    }
+    
+    /**
+     * Buy the products on cart.
+     */
+    public String buy(){
+        Iterator<Product> it = listProductCart.iterator();
+        Product product;
+        String data = "05";
+        DatagramPacket datagram;
+        byte[] dataByte = new byte[1024];
+        datagram = new DatagramPacket(dataByte, dataByte.length);
+        while(it.hasNext()){
+            product = it.next();
+            data+= product.getId() + TOKENSEPARATOR + product.getAmount();
+            if (it.hasNext()) {
+                data+=TOKENSEPARATOR;
+            } else {
+                data+="05";
+            }
         }
-        
+        sendDatagramPacket(data, ipServer, portServer);
+        try {
+            socketUDP.receive(datagram);
+            data = new String(datagram.getData());
+            String initCode = data.substring(0, LCDPROTOCOL);
+            data = data.substring(LCDPROTOCOL);
+            int lastCodeIndex = data.lastIndexOf(initCode);
+            if (lastCodeIndex == 0) {
+                return null;
+            }
+            String endCode = data.substring(lastCodeIndex, lastCodeIndex + LCDPROTOCOL);
+            data = data.substring(0, lastCodeIndex);
+            System.out.println("Frete com valor igual a R$:" + data);
+            return data;
+        } catch (IOException ex) {
+            System.out.println("ERROR: Não foi possível obter o valor do frete.");
+        }
+        return null;
     }
     
                                                   /* Communications */
@@ -217,8 +267,9 @@ public class Controller {
         Product product;
         listProduct = new ArrayList();
         if(!data.trim().isEmpty()){
-            for (int i = 0; i < dataSplited.length/3; i++) {
-                product = new Product(dataSplited[2], dataSplited[0], dataSplited[1], 0);
+            for (int i = 0; i < dataSplited.length; i+=3) {
+                product = new Product(dataSplited[i+2], dataSplited[i], dataSplited[i+1], 0);
+                System.out.println("Colocando o produto:" + product.getName());
                 getListProduct().add(product);
             }
         }
@@ -268,6 +319,7 @@ public class Controller {
                                     System.out.println("IP: " + dataSplited[0] + ", Port: " + dataSplited[1]);
                                     ipServer = dataSplited[0];
                                     portServer = Integer.parseInt(dataSplited[1]);
+                                    getProduct();
                                 }
                             }
                             return;
@@ -283,7 +335,6 @@ public class Controller {
                 } catch (IOException ex) {
                     System.out.println("ERROR: A packet can't be sent");
                 }
-                notify();
             }
         };
 
@@ -384,5 +435,19 @@ public class Controller {
      */
     public void setListProduct(ArrayList<Product> listProduct) {
         this.listProduct = listProduct;
+    }
+
+    /**
+     * @return the listProductCart
+     */
+    public ArrayList<Product> getListProductCart() {
+        return listProductCart;
+    }
+
+    /**
+     * @param listProductCart the listProductCart to set
+     */
+    public void setListProductCart(ArrayList<Product> listProductCart) {
+        this.listProductCart = listProductCart;
     }
 }

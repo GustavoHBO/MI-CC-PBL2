@@ -204,6 +204,26 @@ public class Server {
                                 case "04":
                                     sendDatagramPacket(controllerServer.mountDataProduct(), ipSender, portSender);
                                     break;
+                                case "05":
+                                    System.out.println(data);
+                                    String[] buySplited = data.split(TOKENSEPARATOR);
+                                    boolean buy = false;
+                                    for(i = 0; i < buySplited.length; i+=2){
+                                        try {
+                                            if (controllerServer.removeProduct(buySplited[i], Integer.parseInt(buySplited[i + 1])) == 1) {
+                                                System.out.println("Produto comprado!");
+                                                buy = true;
+                                            } else {
+                                                System.out.println("Produto não comprado!");
+                                            }
+                                        } catch (IOException ex) {
+                                            System.out.println("ERROR: Não foi possível salvar as alterações.");
+                                        }
+                                    }
+                                    if(buy){
+                                        sendDatagramPacket("0x05" + controllerServer.getPosX() * controllerServer.getPosY() + "0x05", ipSender, portSender);
+                                    }
+                                    break;
                                 default:
                                     break;
                             }

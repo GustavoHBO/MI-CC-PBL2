@@ -78,8 +78,8 @@ public class Controller {
     private ArrayList<String> listAssociationTable;// Association the product with deposits.
     private ArrayList<String> listAssociationTableProductReserve;// Association the product reserved.
 
-    private int posX;
-    private int posY;
+    private int posX = 10;
+    private int posY = 5;
     
 
     /* Turn the constructor in private for use only an instance of the class */
@@ -270,14 +270,45 @@ public class Controller {
         saveProduct();
     }
     
-    private int removeProduct(String idProduct, int amount, String idDeposit) throws IOException {
+    /**
+     * Find the product with ID.
+     * @param id - Id of product.
+     * @return product - Product found.
+     */
+    private Product findProduct(String id){
+        Iterator<Product> it = listProduct.iterator();
         Product product;
-
-        product = findProductAssociation(idProduct, idDeposit);
-        if (product.getAmount() > amount) {
-            product.setAmount(product.getAmount() - amount);
-            saveProduct();
-            return 1;
+        while(it.hasNext()){
+            product = it.next();
+            if (product.getIdRegister() == Integer.parseInt(id)) {
+                return product;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Remove the product registered.
+     * @param idProduct
+     * @param amount
+     * @return 0 - Product not removed, 1 - Product removed.
+     * @throws IOException 
+     */
+    public int removeProduct(String idProduct, int amount) throws IOException {
+        Product product;
+        product = findProduct(idProduct);
+        if (product != null) {
+            if (product.getAmount() < amount) {
+                return 0;
+            } else {
+                if (product.getAmount() == amount) {
+                    listProduct.remove(product);
+                } else {
+                    product.setAmount(product.getAmount() - amount);
+                }
+                saveProduct();
+                return 1;
+            }
         }
         return 0;
     }

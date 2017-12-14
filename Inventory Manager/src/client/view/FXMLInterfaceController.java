@@ -72,6 +72,8 @@ public class FXMLInterfaceController implements Initializable{
     private Button buttonAddToCartSeeProduct;
     @FXML
     private Button buttonCancelSeeProduct;
+    @FXML
+    private Button buttonBuy;
     
         /* Statement TextField's */
             /* Login */
@@ -125,12 +127,17 @@ public class FXMLInterfaceController implements Initializable{
     private Label labelNameSeeProduct;
     @FXML
     private Label labelIdSeeProduct;
+    @FXML
+    private Label labelFrete;
     
     
         /* Statement TableView */
             /* Store */
     @FXML
     private TableView<ProductProperty> tableViewProductsStore;
+            /* Cart */
+    @FXML
+    private TableView<ProductProperty> tableViewProductsCart;
     
         /* Statement TableView */
             /* Store */
@@ -141,9 +148,23 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private TableColumn<ProductProperty, String> tableColumnPriceStore;
     
+        /* Cart */
+    
+    @FXML
+    private TableColumn<ProductProperty, String> tableColumnIdCart;
+    @FXML
+    private TableColumn<ProductProperty, String> tableColumnNameCart;
+    @FXML
+    private TableColumn<ProductProperty, String> tableColumnPriceCart;
+    @FXML
+    private TableColumn<ProductProperty, String> tableColumnAmountCart;
+    
         /* ObservableList */
         /* Show Product */
     private ObservableList<ProductProperty> observableListProduct;
+    
+        /* Show Product */
+    private ObservableList<ProductProperty> observableListProductCart;
     
     private Controller controllerShop;
     
@@ -172,6 +193,7 @@ public class FXMLInterfaceController implements Initializable{
                 textFieldCnpjLogin.setText("");
                 passwordFieldPassLogin.setText("");
                 controllerShop.login(textFieldCnpjLogin.getText().trim(), passwordFieldPassLogin.getText().trim());
+                loadDataTableView();
             } catch (IOException ex) {
                 labelErrorLogin.setText("ERROR: A conexão não pode ser estabelecida.");
                 labelErrorLogin.setVisible(true);
@@ -261,10 +283,12 @@ public class FXMLInterfaceController implements Initializable{
      */
     @FXML
     private void eventButtonAddCartStore(){
-//        ProductProperty p = tableViewProductsStore.getSelectionModel().getSelectedItem();
-//        System.out.println(p.getId());
-        paneSeeAddProduct.setVisible(true);
-        
+        ProductProperty p = tableViewProductsStore.getSelectionModel().getSelectedItem();
+        if (p != null) {
+            labelNameSeeProduct.setText(p.getName().get());
+            labelIdSeeProduct.setText(p.getId().get());
+            paneSeeAddProduct.setVisible(true);
+        }
     }
     
     /**
@@ -281,7 +305,9 @@ public class FXMLInterfaceController implements Initializable{
      */
     @FXML
     private void eventButtonAddToCartSeeProduct() {
-        
+        controllerShop.addProductCart(labelIdSeeProduct.getText(), tableViewProductsStore.getSelectionModel().getSelectedItem().getName().get(), tableViewProductsStore.getSelectionModel().getSelectedItem().getPrice().get(), textFieldAmountSeeProduct.getText());
+        System.out.println("Adicionando: " + labelIdSeeProduct.getText() + " " + textFieldAmountSeeProduct.getText());
+        loadDataTableViewCart();
     }
     
     /**
@@ -290,6 +316,23 @@ public class FXMLInterfaceController implements Initializable{
     @FXML
     private void eventButtonCancelSeeProduct() {
         paneSeeAddProduct.setVisible(false);
+    }
+    
+    /**
+     * Button event Cancel See Product, turn the pane "paneSeeAddProduct" in invisible.
+     */
+    @FXML
+    private void eventButtonCancelSeeCart() {
+        paneCart.setVisible(false);
+    }
+    
+    /**
+     * Button event Cancel See Product, turn the pane "paneSeeAddProduct" in invisible.
+     */
+    @FXML
+    private void eventBuy() {
+        labelFrete.setText(controllerShop.buy());
+        labelFrete.setVisible(true);
     }
     
     /**
@@ -305,6 +348,7 @@ public class FXMLInterfaceController implements Initializable{
             observableListProduct = FXCollections.observableArrayList();
             while (it.hasNext()) {
                 product = it.next();
+                System.out.println("Colocando na tabela: " + product.getName());
                 observableListProduct.add(new ProductProperty(product.getId(), product.getName(), product.getPrice(), product.getAmount()));
             }
             tableColumnIdStore.setCellValueFactory(cellData -> cellData.getValue().getId());
@@ -312,6 +356,31 @@ public class FXMLInterfaceController implements Initializable{
             tableColumnPriceStore.setCellValueFactory(cellData -> cellData.getValue().getPrice());
 
             tableViewProductsStore.setItems(observableListProduct);
+        }
+    }
+    
+    /**
+     * Load the data on list of the products in a table.
+     */
+    @FXML
+    public void loadDataTableViewCart() {
+        Iterator<Product> it;
+        Product product;
+
+        if (controllerShop.getListProductCart()!= null) {
+            it = controllerShop.getListProductCart().iterator();
+            observableListProductCart = FXCollections.observableArrayList();
+            while (it.hasNext()) {
+                product = it.next();
+                System.out.println("Colocando na tabela2: " + product.getName());
+                observableListProductCart.add(new ProductProperty(product.getId(), product.getName(), product.getPrice(), product.getAmount()));
+            }
+            tableColumnIdCart.setCellValueFactory(cellData -> cellData.getValue().getId());
+            tableColumnNameCart.setCellValueFactory(cellData -> cellData.getValue().getName());
+            tableColumnPriceCart.setCellValueFactory(cellData -> cellData.getValue().getPrice());
+            tableColumnAmountCart.setCellValueFactory(cellData -> cellData.getValue().getAmount());
+
+            tableViewProductsCart.setItems(observableListProductCart);
         }
     }
 }
